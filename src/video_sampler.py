@@ -12,7 +12,7 @@ class VideoSampler(ABC):
         pass
 
 class UniformFrameSampler(VideoSampler):
-    """Ritorna UN frame alla volta (quello che usi ora)."""
+    """Returns ONE frame at a time (the one you use now)."""
     def __init__(self, video_path, target_fps=1, max_frames=10000):
         super().__init__(video_path)
         self.target_fps = target_fps
@@ -31,7 +31,7 @@ class UniformFrameSampler(VideoSampler):
             ret, frame = cap.read()
             if not ret: break
             if count % int(skip) == 0:
-                yield frame # Ritorna un singolo numpy array
+                yield frame # Returns a single numpy array
                 yielded += 1
             count += 1
         cap.release()
@@ -61,7 +61,7 @@ class SlidingWindowSampler(VideoSampler):
             skip = max(1, int(max(native_fps, 30.0) / self.target_fps))
 
             buffer = collections.deque(maxlen=self.window_size)
-            tail_buffer = []  # frame nuovi dall'ultimo yield
+            tail_buffer = []  # new frames since the last yield
 
             raw_frame_count = 0
             frames_added_to_buffer = 0
@@ -90,11 +90,11 @@ class SlidingWindowSampler(VideoSampler):
                         if steps_since_full % self.stride == 0:
                             yield list(buffer)
                             yielded_batches += 1
-                            tail_buffer = []  # reset: da qui in poi accumulo solo la coda nuova
+                            tail_buffer = []  # reset: from here on only the new tail is accumulated
 
                 raw_frame_count += 1
 
-            # flush finale: solo i frame non ancora emessi
+            # final flush: only the frames not yet emitted
             if len(tail_buffer) > 0 and yielded_batches < self.max_frames:
                 yield tail_buffer
 
@@ -104,24 +104,24 @@ class SlidingWindowSampler(VideoSampler):
 
 class IncrementalSlidingWindowSampler:
     """
-    Sampler stateful incrementale.
+    Incremental stateful sampler.
 
-    Differenza rispetto a SlidingWindowSampler:
-    - non riparte mai da zero
-    - mantiene aperto il VideoCapture
-    - mantiene buffer, tail_buffer e contatori interni
-    - permette di avanzare progressivamente fino a timestamp crescenti
+    Difference with respect to SlidingWindowSampler:
+    - it never restarts from zero
+    - it keeps the VideoCapture open
+    - it keeps buffer, tail_buffer and internal counters
+    - it allows advancing progressively up to increasing timestamps
 
-    Uso tipico:
+    Typical usage:
         sampler = IncrementalSlidingWindowSampler(...)
         committed_batches, pending_tail = sampler.advance_until(721.0)
         committed_batches, pending_tail = sampler.advance_until(734.4)
         ...
         sampler.close()
 
-    Semantica:
-    - committed_batches: batch completi "stabili", da appendere alla master cache
-    - pending_tail: coda finale non ancora consolidata, da usare solo sulla question cache
+    Semantics:
+    - committed_batches: complete "stable" batches, to be appended to the master cache
+    - pending_tail: final tail not yet consolidated, to be used only on the question cache
     """
 
     def __init__(
@@ -228,16 +228,16 @@ class IncrementalSlidingWindowSampler:
 
     def advance_until(self, until_second):
         """
-        Avanza lo stato interno fino a until_second.
+        Advances the internal state up to until_second.
 
-        Ritorna:
+        Returns:
             committed_batches: list[list[frame]]
             pending_tail: list[frame]
 
-        Note importanti:
-        - until_second deve essere monotonicamente non decrescente
-        - pending_tail NON va consolidata nella master cache
-        - pending_tail va appendata solo a una copia temporanea della cache
+        Important notes:
+        - until_second must be monotonically non-decreasing
+        - pending_tail must NOT be consolidated into the master cache
+        - pending_tail must only be appended to a temporary copy of the cache
         """
         if until_second is None:
             raise ValueError("until_second must not be None")
@@ -371,8 +371,8 @@ class IncrementalSlidingWindowSampler:
 
     def finish(self):
         """
-        Consuma il resto del video fino alla fine e ritorna gli ultimi batch/tail.
-        Utile solo se mai dovesse servirti una query finale a EOF.
+        Consumes the rest of the video until the end and returns the last batches/tail.
+        Only useful if you should ever need a final query at EOF.
         """
         if self.finished:
             return [], list(self.tail_buffer)

@@ -29,9 +29,9 @@ from .reducers import (
 @dataclass
 class TraceOp:
     """
-    Rappresenta una singola operazione replayable sui layer follower.
-    Salva il tipo di op, gli indici usati e metadati minimi per debug.
-    È la forma standard della trace prodotta dalla pipeline.
+    Represents a single replayable operation on the follower layers.
+    Stores the op type, the indices used and minimal metadata for debugging.
+    It is the standard form of the trace produced by the pipeline.
     """
     step_name: str
     op_type: str
@@ -43,9 +43,9 @@ class TraceOp:
 @dataclass
 class PruningStep:
     """
-    Descrive un passo della pipeline di pruning.
-    domain decide intra/inter/cleanup/storage, scorer decide lo scoring e reducer l'azione.
-    params contiene opzioni locali tipo chunk_size, min_len, remove_pct, remove_tokens.
+    Describes one step of the pruning pipeline.
+    domain selects intra/inter/cleanup/storage, scorer selects the scoring and reducer the action.
+    params holds local options such as chunk_size, min_len, remove_pct, remove_tokens.
     """
     name: str
     domain: str
@@ -57,13 +57,13 @@ class PruningStep:
 
 class PruningPipeline:
     """
-    Esegue una lista ordinata di step di pruning sulla mutable.
-    Supporta pipeline miste intra/inter/cleanup con trace replayable.
+    Executes an ordered list of pruning steps on the mutable.
+    Supports mixed intra/inter/cleanup pipelines with a replayable trace.
 
-    Nota importante:
-    - domain="storage" NON modifica direttamente i tensori.
-    - storage/offload è gestito dal FlexibleCacheLayer perché deve scrivere su disco.
-    - qui lo step storage funziona come barriera terminale: la pipeline ritorna subito.
+    Important note:
+    - domain="storage" does NOT modify the tensors directly.
+    - storage/offload is handled by the FlexibleCacheLayer because it must write to disk.
+    - here the storage step works as a terminal barrier: the pipeline returns immediately.
     """
 
     def __init__(
@@ -72,9 +72,9 @@ class PruningPipeline:
         similarity_keep_old: bool = False,
     ):
         """
-        Inizializza la pipeline con gli step ordinati e le convenzioni pair-wise.
-        similarity_keep_old controlla la semantica shared di drop/merge pair-based.
-        La pipeline non possiede KV: lavora solo sui tensori passati ai metodi.
+        Initializes the pipeline with the ordered steps and the pair-wise conventions.
+        similarity_keep_old controls the shared semantics of pair-based drop/merge.
+        The pipeline does not own KV: it only works on the tensors passed to its methods.
         """
         self.steps = list(steps)
         self.similarity_keep_old = bool(similarity_keep_old)
@@ -91,18 +91,18 @@ class PruningPipeline:
         guidance_k: torch.Tensor | None = None,
     ) -> Tuple[List[TraceOp], torch.Tensor, torch.Tensor, List[int]]:
         """
-        Esegue la pipeline completa sul first layer e produce la trace ufficiale.
+        Executes the full pipeline on the first layer and produces the official trace.
 
-        Se incontra uno step storage/offload:
-        - ritorna immediatamente;
-        - non fa fallback left-trim;
-        - lascia al FlexibleCacheLayer il compito di offloadare l'eccesso.
+        If it encounters a storage/offload step:
+        - it returns immediately;
+        - it does no fallback left-trim;
+        - it leaves to the FlexibleCacheLayer the task of offloading the excess.
 
-        Ritorna:
+        Returns:
         - trace_ops
         - mut_k
         - mut_v
-        - mutable_frame_lengths aggiornate
+        - updated mutable_frame_lengths
         """
         mutable_frame_lengths = [int(x) for x in mutable_frame_lengths if int(x) > 0]
         hat_frame_lengths = [int(x) for x in hat_frame_lengths if int(x) > 0]
@@ -121,13 +121,13 @@ class PruningPipeline:
                     break
 
                 if step.domain == "storage":
-                    # IMPORTANTISSIMO:
-                    # storage/offload non modifica mut_k dentro la pipeline.
-                    # Se facessimo progress=True + break, il while ripartirebbe
-                    # all'infinito perché mut_k.shape[-2] resterebbe > target_len.
+                    # VERY IMPORTANT:
+                    # storage/offload does not modify mut_k inside the pipeline.
+                    # If we did progress=True + break, the while loop would restart
+                    # forever because mut_k.shape[-2] would stay > target_len.
                     #
-                    # Quindi ritorniamo subito. Il layer chiamante applicherà
-                    # _apply_storage_offload_steps(...) fuori dalla pipeline.
+                    # So we return immediately. The calling layer will apply
+                    # _apply_storage_offload_steps(...) outside the pipeline.
                     return trace_ops, mut_k, mut_v, mutable_frame_lengths
 
                 if step.domain == "cleanup":
@@ -222,9 +222,9 @@ class PruningPipeline:
         trace_ops: List[TraceOp],
     ) -> Tuple[torch.Tensor, torch.Tensor, List[int]]:
         """
-        Reapplica in ordine la trace prodotta dal first layer su un follower layer.
-        Non ricalcola mai score o selezioni: usa solo gli indici salvati nella trace.
-        Ritorna mut_k, mut_v e mutable_frame_lengths aggiornate sul follower.
+        Reapplies in order the trace produced by the first layer on a follower layer.
+        Never recomputes scores or selections: it only uses the indices stored in the trace.
+        Returns mut_k, mut_v and the updated mutable_frame_lengths on the follower.
         """
         mutable_frame_lengths = [int(x) for x in mutable_frame_lengths if int(x) > 0]
 
@@ -246,9 +246,9 @@ class PruningPipeline:
         step: PruningStep,
     ) -> Tuple[List[TraceOp], torch.Tensor, torch.Tensor, List[int], bool]:
         """
-        Esegue uno step di sola pulizia dei frame troppo piccoli.
-        Il reducer supportato qui è remove_small_frames con parametro min_len.
-        Ritorna ops generate, tensori aggiornati, frame lengths e flag changed.
+        Executes a cleanup-only step for frames that are too small.
+        The reducer supported here is remove_small_frames with the min_len parameter.
+        Returns the generated ops, updated tensors, frame lengths and the changed flag.
         """
         min_len = int(step.params.get("min_len", 2))
 
@@ -358,7 +358,7 @@ class PruningPipeline:
 
             return [op], mut_k, mut_v, mutable_frame_lengths, True
 
-        # Ramo token-wise su value norm.
+        # Token-wise branch on value norm.
         if str(step.scorer).lower() in {"value_norm", "van_l2"}:
             if step.reducer != "drop":
                 raise ValueError("value_norm intra currently supports only reducer='drop'")
@@ -398,7 +398,7 @@ class PruningPipeline:
             )
             return [op], mut_k, mut_v, mutable_frame_lengths, True
 
-        # Ramo pair-wise intra-frame.
+        # Pair-wise intra-frame branch.
         pair_indices = compute_intra_pair_indices_parallel(
             mut_k=mut_k,
             frame_lengths=mutable_frame_lengths,
@@ -527,9 +527,9 @@ class PruningPipeline:
         op: TraceOp,
     ) -> Tuple[torch.Tensor, torch.Tensor, List[int]]:
         """
-        Reapplica una singola op della trace su un follower layer.
-        La semantica dei pair reducer resta quella globale della pipeline.
-        Ritorna mut_k, mut_v e mutable_frame_lengths aggiornate dopo l'op.
+        Reapplies a single trace op on a follower layer.
+        The semantics of the pair reducers stay the global ones of the pipeline.
+        Returns mut_k, mut_v and the updated mutable_frame_lengths after the op.
         """
         if op.op_type == "remove_tokens":
             removed_indices = op.removed_indices

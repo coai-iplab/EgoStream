@@ -10,7 +10,6 @@ from .tensor_ops import (
 )
 
 from Caches.CacheFactory import create_cache_from_config
-from Caches.PurgeableCache import PurgeableCache
 from .stc_pruner import build_stc_pruner
 
 
@@ -237,14 +236,14 @@ def _prime_cache_sw(model, processor, cache_cfg, prompt_path, verbose=True):
 
 def _extract_frame_token_counts_from_grid(image_grid_thw: torch.Tensor, processor=None, model=None):
     """
-    Ricava il numero REALE di token visuali per frame a partire da image_grid_thw.
+    Derives the REAL number of visual tokens per frame starting from image_grid_thw.
 
-    Per Qwen-VL, image_grid_thw è tipicamente pre-spatial-merge.
-    Quindi i token finali per frame sono:
+    For Qwen-VL, image_grid_thw is typically pre-spatial-merge.
+    So the final tokens per frame are:
 
         t * h * w / (merge_size ** 2)
 
-    Nel tuo caso merge_size=2, quindi /4.
+    In your case merge_size=2, hence /4.
     """
     if image_grid_thw is None:
         raise ValueError("image_grid_thw is None")
@@ -294,13 +293,13 @@ def _extract_frame_token_counts_from_grid(image_grid_thw: torch.Tensor, processo
 
 def _is_storage_offload_step(step) -> bool:
     """
-    Riconosce uno step storage/offload sia prima sia dopo il parsing della config.
+    Recognizes a storage/offload step both before and after the config parsing.
 
-    Prima del parsing:
-        step è un dict.
+    Before parsing:
+        step is a dict.
 
-    Dopo CacheFactory._parse_pruning_pipeline:
-        step è un PruningStep dataclass.
+    After CacheFactory._parse_pruning_pipeline:
+        step is a PruningStep dataclass.
     """
     if isinstance(step, dict):
         domain = str(step.get("domain", "")).strip().lower()
@@ -314,8 +313,8 @@ def _is_storage_offload_step(step) -> bool:
 
 def _cache_has_storage_offload(cache_instance) -> bool:
     """
-    Determina se la cache deve usare prepare/finalize frame-aware anche
-    quando intra/inter pruning sono false ma storage/offload è attivo.
+    Determines whether the cache must use frame-aware prepare/finalize even
+    when intra/inter pruning are false but storage/offload is active.
     """
     if not hasattr(cache_instance, "cache_config"):
         return False
@@ -340,10 +339,10 @@ def _append_frame_batches_to_existing_cache_sw(
     verbose=True,
 ):
     """
-    Helper di basso livello:
-    prende direttamente una sequenza di batch di frame già pronti
-    e li appende a una cache esistente usando la stessa logica
-    di ingestion di fill_cache_sw.
+    Low-level helper:
+    takes directly a sequence of already prepared frame batches
+    and appends them to an existing cache using the same ingestion
+    logic as fill_cache_sw.
     """
     if not hasattr(cache_instance, "global_token_counter"):
         raise ValueError("cache_instance must have global_token_counter set before append")
@@ -469,14 +468,14 @@ def _append_frame_batches_to_existing_cache_sw(
                     or _cache_has_storage_offload(cache_instance)
                 )
 
-            # IMPORTANTE:
+            # IMPORTANT:
             # - frame_aware_pruning=True:
-            #     usa prepare/finalize e poi tiene solo token visuali dell'append.
-            #     Serve anche per offload-only, perché senza tracking frame-aware
-            #     non avremmo mutable/hat lengths corretti.
+            #     uses prepare/finalize and then keeps only the visual tokens of the append.
+            #     Also needed for offload-only, because without frame-aware tracking
+            #     we would not have correct mutable/hat lengths.
             #
             # - frame_aware_pruning=False:
-            #     usa il tracking classico add_frame_tokens.
+            #     uses the classic add_frame_tokens tracking.
             if frame_aware_pruning and hasattr(cache_instance, "prepare_frame_batch"):
                 cache_instance.prepare_frame_batch(
                     frame_token_counts=frame_token_counts,

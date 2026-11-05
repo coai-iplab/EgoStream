@@ -115,16 +115,16 @@ def _build_quantization_config(load_in_4bit=False):
         from transformers import BitsAndBytesConfig
     except ImportError as exc:
         raise RuntimeError(
-            "Hai richiesto il caricamento 4-bit, ma BitsAndBytesConfig non e disponibile. "
-            "Aggiorna transformers e installa bitsandbytes."
+            "4-bit loading was requested but BitsAndBytesConfig is not available. "
+            "Update transformers and install bitsandbytes."
         ) from exc
 
     try:
         import bitsandbytes  # noqa: F401
     except ImportError as exc:
         raise RuntimeError(
-            "Hai richiesto il caricamento 4-bit, ma bitsandbytes non e installato. "
-            "Installa con: pip install bitsandbytes"
+            "4-bit loading was requested but bitsandbytes is not installed. "
+            "Install it with: pip install bitsandbytes"
         ) from exc
 
     return BitsAndBytesConfig(
@@ -157,7 +157,7 @@ def _load_internvl_model(model_source, device, local_only, load_in_4bit=False):
         )
         print(">>> DEBUG: SUCCESSO! InternVL caricato con Flash Attention 2.", flush=True)
     except Exception as e:
-        print(f">>> WARNING: Flash Attention 2 non disponibile per InternVL (Errore: {e}). Fallback.", flush=True)
+        print(f">>> WARNING: Flash Attention 2 not available for InternVL ({e}). Falling back to SDPA.", flush=True)
         model = AutoModelForImageTextToText.from_pretrained(
             model_source,
             torch_dtype=torch.bfloat16,
@@ -206,7 +206,7 @@ def load_model(model_name="Qwen/Qwen3-VL-4B-Instruct", device="cuda", load_in_4b
         )
         print(">>> DEBUG: SUCCESSO! Modello caricato con Flash Attention 2.", flush=True)
     except Exception as e:
-        print(f">>> WARNING: Flash Attention 2 non disponibile (Errore: {e}). Fallback.", flush=True)
+        print(f">>> WARNING: Flash Attention 2 not available ({e}). Falling back to SDPA.", flush=True)
         model = Qwen3VLForConditionalGeneration.from_pretrained(
             model_source,
             torch_dtype=torch.bfloat16,

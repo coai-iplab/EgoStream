@@ -68,16 +68,16 @@ def _build_quantization_config(load_in_4bit=False):
         from transformers import BitsAndBytesConfig
     except ImportError as exc:
         raise RuntimeError(
-            "Hai richiesto il caricamento 4-bit, ma BitsAndBytesConfig non e disponibile. "
-            "Aggiorna transformers e installa bitsandbytes."
+            "4-bit loading was requested but BitsAndBytesConfig is not available. "
+            "Update transformers and install bitsandbytes."
         ) from exc
 
     try:
         import bitsandbytes  # noqa: F401
     except ImportError as exc:
         raise RuntimeError(
-            "Hai richiesto il caricamento 4-bit, ma bitsandbytes non e installato. "
-            "Installa con: pip install bitsandbytes"
+            "4-bit loading was requested but bitsandbytes is not installed. "
+            "Install it with: pip install bitsandbytes"
         ) from exc
 
     return BitsAndBytesConfig(
@@ -120,7 +120,7 @@ def load_molmo2_model(model_name="allenai/Molmo2-8B", device="cuda", load_in_4bi
         )
         print(">>> MOLMO2 DEBUG: modello caricato con Flash Attention 2.", flush=True)
     except Exception as e:
-        print(f">>> MOLMO2 WARNING: Flash Attention 2 non disponibile (Errore: {e}). Fallback.", flush=True)
+        print(f">>> MOLMO2 WARNING: Flash Attention 2 not available ({e}). Falling back to SDPA.", flush=True)
         model = AutoModelForImageTextToText.from_pretrained(
             model_source,
             torch_dtype=torch.bfloat16,

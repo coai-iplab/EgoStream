@@ -548,7 +548,7 @@ def _to_int_bytes(x, default=0):
             if key in x and isinstance(x[key], (int, float)):
                 return int(x[key])
 
-        # Fallback: somma tutti i valori numerici scalari del dict.
+        # Fallback: sum every scalar numeric value of the dict.
         total = 0
         found = False
         for value in x.values():
@@ -836,7 +836,7 @@ def main():
     else:
         print = lambda *args, **kwargs: None
 
-    print(">>> INIZIO SCRIPT")
+    print(">>> START")
 
     paths = config.get("paths", {})
     vid_params = config.get("video_processing", {})
@@ -845,8 +845,6 @@ def main():
     cache_cfg = config.get("cache", {})
     shuffle_cfg = config.get("shuffle_experiment", {})
 
-    if cache_cfg.get("type") == "PurgeableCache":
-        raise NotImplementedError("This script supports only non-Purgeable sliding-window caches.")
     if not vid_params.get("use_sliding_window", False):
         raise RuntimeError("This script supports only sliding-window mode.")
 
@@ -1022,7 +1020,7 @@ def main():
     # ---------------------------------------------------------------
     if normal_tasks:
         done_videos, total_videos = count_fully_processed_videos(my_normal_tasks_split, processed_keys)
-        print(f"[Rank {args.rank}] Video non-EgoLife già completamente processati: {done_videos}/{total_videos}")
+        print(f"[Rank {args.rank}] Non-EgoLife videos already fully processed: {done_videos}/{total_videos}")
 
         grouped_normal = group_tasks_by_video(normal_tasks)
 

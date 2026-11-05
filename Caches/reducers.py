@@ -11,9 +11,9 @@ def remove_token_indices(
     remove_indices: torch.Tensor,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Rimuove esplicitamente token-wise le posizioni indicate da remove_indices.
-    Le posizioni sono riferite alla regione mutable corrente del layer.
-    Ritorna i nuovi tensori mut_k e mut_v filtrati.
+    Explicitly removes token-wise the positions indicated by remove_indices.
+    The positions are relative to the current mutable region of the layer.
+    Returns the new filtered mut_k and mut_v tensors.
     """
     if remove_indices is None or remove_indices.numel() == 0:
         return mut_k, mut_v
@@ -34,9 +34,9 @@ def drop_tokens_from_pair_indices(
     similarity_keep_old: bool,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
-    Converte pair indices in token indices da droppare e applica il drop.
-    Se similarity_keep_old è True elimina il secondo token della coppia, altrimenti il primo.
-    Ritorna mut_k, mut_v aggiornati e removed_indices effettivi.
+    Converts pair indices into token indices to drop and applies the drop.
+    If similarity_keep_old is True removes the second token of the pair, otherwise the first.
+    Returns the updated mut_k, mut_v and the actual removed_indices.
     """
     if pair_indices is None or pair_indices.numel() == 0:
         empty = torch.tensor([], device=mut_k.device, dtype=torch.long)
@@ -60,9 +60,9 @@ def merge_pairs_by_indices(
     similarity_keep_old: bool,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
-    Fonde le coppie indicate aggiornando il value del token kept e rimuovendo l'altro.
-    Se similarity_keep_old è True mergea il token nuovo dentro il vecchio, altrimenti il contrario.
-    Ritorna mut_k, mut_v aggiornati e removed_indices effettivi.
+    Merges the indicated pairs by updating the value of the kept token and removing the other.
+    If similarity_keep_old is True merges the new token into the old one, otherwise the opposite.
+    Returns the updated mut_k, mut_v and the actual removed_indices.
     """
     if pair_indices is None or pair_indices.numel() == 0:
         empty = torch.tensor([], device=mut_k.device, dtype=torch.long)
@@ -98,9 +98,9 @@ def merge_pairs_by_indices(
 
 def update_frame_lengths_after_remove_indices(frame_lengths, removed_indices: torch.Tensor) -> List[int]:
     """
-    Aggiorna le frame lengths dopo una rimozione token-wise esplicita.
-    Ogni indice rimosso viene mappato nel frame di appartenenza e decrementa quel frame.
-    Ritorna la nuova lista di frame lengths senza elementi non positivi.
+    Updates the frame lengths after an explicit token-wise removal.
+    Each removed index is mapped to the frame it belongs to and decrements that frame.
+    Returns the new list of frame lengths without non-positive elements.
     """
     frame_lengths = [int(x) for x in frame_lengths if int(x) > 0]
 
@@ -130,9 +130,9 @@ def update_frame_lengths_after_pair_reduction(
     similarity_keep_old: bool,
 ) -> List[int]:
     """
-    Aggiorna le frame lengths dopo un'operazione pair-wise intra-frame.
-    Converte i pair indices nei token rimossi effettivi prima di fare il mapping ai frame.
-    Ritorna la nuova lista di frame lengths già pulita.
+    Updates the frame lengths after a pair-wise intra-frame operation.
+    Converts the pair indices into the actual removed tokens before mapping them to frames.
+    Returns the new list of frame lengths already cleaned.
     """
     frame_lengths = [int(x) for x in frame_lengths if int(x) > 0]
 
@@ -154,9 +154,9 @@ def remove_small_frames(
     min_len: int,
 ):
     """
-    Elimina interamente i frame con lunghezza <= min_len.
-    È utile come cleanup dopo passaggi intra/inter che lasciano frammenti minuscoli.
-    Ritorna mut_k, mut_v, new_frame_lengths e removed_indices.
+    Entirely removes the frames with length <= min_len.
+    It is useful as a cleanup after intra/inter passes that leave tiny fragments.
+    Returns mut_k, mut_v, new_frame_lengths and removed_indices.
     """
     frame_lengths = [int(x) for x in frame_lengths if int(x) > 0]
     min_len = int(min_len)
@@ -197,9 +197,9 @@ def left_trim_to_target(
     target_len: int,
 ):
     """
-    Taglia temporalmente da sinistra se la mutable è ancora sopra target_len.
-    Aggiorna sia i tensori sia la distribuzione delle frame lengths residue.
-    Ritorna mut_k, mut_v, new_frame_lengths e removed_indices.
+    Temporally trims from the left if the mutable is still above target_len.
+    Updates both the tensors and the distribution of the remaining frame lengths.
+    Returns mut_k, mut_v, new_frame_lengths and removed_indices.
     """
     target_len = int(target_len)
     current_len = int(mut_k.shape[-2])

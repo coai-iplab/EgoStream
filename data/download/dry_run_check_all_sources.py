@@ -93,7 +93,7 @@ def find_ego4d_exe() -> str:
         return str(possible)
 
     raise FileNotFoundError(
-        "Comando ego4d non trovato. Installa con:\n"
+        "ego4d command not found. Install it with:\n"
         "  python -m pip install -U ego4d\n"
         "Poi verifica:\n"
         "  ego4d --help"
@@ -103,10 +103,10 @@ def find_ego4d_exe() -> str:
 def extract_ego4d_check_uid(ann: dict[str, Any]) -> tuple[str | None, dict[str, Any]]:
     """
     Regole:
-    - Ego4D / Ego4D_EM_Test: NON trim. Usa video_id così com'è.
-    - EgoTempo / MultiHop-EgoQA: se video_id è uid_start_end, usa uid base.
-    - EgoLife: skip, viene controllato separatamente su HF.
-    - HD-EPIC: skip, viene controllato separatamente su endpoint data.bris.
+    - Ego4D / Ego4D_EM_Test: no trimming, video_id is used as is.
+    - EgoTempo / MultiHop-EgoQA: if video_id is uid_start_end, use the base uid.
+    - EgoLife: skipped here, checked separately on the Hugging Face Hub.
+    - HD-EPIC: skipped here, checked separately on the data.bris endpoint.
     """
     dataset = dataset_norm(ann.get("dataset", ""))
     subfolder = str(ann.get("subfolder") or "")
@@ -235,9 +235,9 @@ def check_ego4d_manifests(
     datasets_to_try: list[str],
 ) -> dict[str, Any]:
     """
-    Trucco:
-    aggiunge un UID finto alla lista. Così ego4d fallisce SEMPRE prima del download
-    e restituisce il set degli UID non presenti nel manifest. Da lì deduciamo i found.
+    Trick:
+    a fake UID is appended to the list so that ego4d ALWAYS fails before downloading
+    and returns the set of UIDs missing from the manifest; the found ones are derived from it.
     """
     ego4d_exe = find_ego4d_exe()
 
@@ -271,7 +271,7 @@ def check_ego4d_manifests(
         missing = parse_missing_uids_from_ego4d_output(combined)
 
         if missing is None:
-            print(f"[WARN] Impossibile parsare missing UID per dataset={dataset_name}")
+            print(f"[WARN] Could not parse the missing UIDs for dataset={dataset_name}")
             print("[STDOUT tail]")
             print((proc.stdout or "")[-3000:])
             print("[STDERR tail]")

@@ -10,9 +10,9 @@ import torch.nn.functional as F
 @dataclass
 class InterPairMeta:
     """
-    Descrive una coppia inter-frame source -> reference.
-    Il source è sempre mutable e il reference può essere mutable o hat.
-    Gli offset source sono sempre riferiti alla mutable.
+    Describes an inter-frame source -> reference pair.
+    The source is always mutable and the reference can be mutable or hat.
+    Source offsets are always relative to the mutable.
     """
     src_frame_pos: int
     src_start_mut: int
@@ -25,9 +25,9 @@ class InterPairMeta:
 
 def flatten_token_vectors(k_block: torch.Tensor) -> torch.Tensor:
     """
-    Appiattisce un blocco [B,H,L,D] in vettori token [L,H*D].
-    Normalizza i vettori per rendere i cosine score più stabili.
-    Ritorna un tensore 2D pronto per scoring single-chunk.
+    Flattens a [B,H,L,D] block into token vectors [L,H*D].
+    Normalizes the vectors to make the cosine scores more stable.
+    Returns a 2D tensor ready for single-chunk scoring.
     """
     token_vecs = k_block[0].permute(1, 0, 2).reshape(k_block.shape[-2], -1)
     return F.normalize(token_vecs, dim=-1)
@@ -35,9 +35,9 @@ def flatten_token_vectors(k_block: torch.Tensor) -> torch.Tensor:
 
 def flatten_token_vectors_batched(k_blocks: torch.Tensor) -> torch.Tensor:
     """
-    Appiattisce un batch [N,H,L,D] in [N,L,H*D].
-    Normalizza lungo l'ultima dimensione per confronti cosine affidabili.
-    Ritorna una rappresentazione batchata token-wise.
+    Flattens a [N,H,L,D] batch into [N,L,H*D].
+    Normalizes along the last dimension for reliable cosine comparisons.
+    Returns a batched token-wise representation.
     """
     token_vecs = k_blocks.permute(0, 2, 1, 3).reshape(
         k_blocks.shape[0], k_blocks.shape[2], -1
@@ -47,9 +47,9 @@ def flatten_token_vectors_batched(k_blocks: torch.Tensor) -> torch.Tensor:
 
 def masked_softmax(logits: torch.Tensor, mask: torch.Tensor, dim: int = -1) -> torch.Tensor:
     """
-    Applica una softmax ignorando le posizioni invalide.
-    Le posizioni fuori mask vengono azzerate sia prima sia dopo la softmax.
-    Ritorna probabilità normalizzate solo sulle entry valide.
+    Applies a softmax ignoring the invalid positions.
+    Positions outside the mask are zeroed both before and after the softmax.
+    Returns probabilities normalized only over the valid entries.
     """
     very_neg = torch.finfo(logits.dtype).min
     masked_logits = logits.masked_fill(~mask, very_neg)
@@ -65,9 +65,9 @@ def compute_adjacent_pair_scores_single(
     similarity_keep_old: bool,
 ) -> torch.Tensor:
     """
-    Calcola score pair-wise adiacenti dentro un singolo chunk/frame.
-    Supporta cosine e pseudo-attention nelle stesse convenzioni della cache attuale.
-    Ritorna score di forma [L-1] dove ogni elemento corrisponde a una coppia.
+    Computes adjacent pair-wise scores inside a single chunk/frame.
+    Supports cosine and pseudo-attention with the same conventions as the current cache.
+    Returns scores of shape [L-1] where each element corresponds to one pair.
     """
     strategy = str(strategy).lower()
 
@@ -75,8 +75,8 @@ def compute_adjacent_pair_scores_single(
         return torch.empty(0, device=k_block.device, dtype=torch.float32)
 
     # FAST PATH: adjacent cosine.
-    # Importante: deve stare PRIMA di flatten_token_vectors(),
-    # altrimenti paghi comunque il costo grosso.
+    # Important: it must come BEFORE flatten_token_vectors(),
+    # otherwise you still pay the big cost.
     if strategy in ("adiacent_cosine", "adjacent_cosine"):
         x0 = k_block[0, :, :-1, :]
         x1 = k_block[0, :, 1:, :]
@@ -87,7 +87,7 @@ def compute_adjacent_pair_scores_single(
 
         return dot / (n0 * n1)
 
-    # Slow path solo per pseudo-attention.
+    # Slow path only for pseudo-attention.
     token_vecs = flatten_token_vectors(k_block)
 
     dim = token_vecs.shape[-1]
@@ -112,9 +112,9 @@ def compute_adjacent_pair_scores_batched(
     similarity_keep_old: bool,
 ) -> torch.Tensor:
     """
-    Calcola score pair-wise adiacenti in forma batchata su più frame/chunk.
-    Le posizioni invalide vengono marcate a -inf così non possono essere selezionate.
-    Ritorna un tensore [N,L-1] allineato al packer intra-frame.
+    Computes adjacent pair-wise scores in batched form over multiple frames/chunks.
+    Invalid positions are marked with -inf so they cannot be selected.
+    Returns a [N,L-1] tensor aligned with the intra-frame packer.
     """
     strategy = str(strategy).lower()
 
@@ -125,8 +125,8 @@ def compute_adjacent_pair_scores_batched(
             dtype=torch.float32,
         )
 
-    # FAST PATH: adjacent cosine batchato.
-    # Evita flatten_token_vectors_batched() e F.normalize().
+    # FAST PATH: batched adjacent cosine.
+    # Avoids flatten_token_vectors_batched() and F.normalize().
     if strategy in ("adiacent_cosine", "adjacent_cosine"):
         x0 = k_blocks[:, :, :-1, :]
         x1 = k_blocks[:, :, 1:, :]
@@ -140,7 +140,7 @@ def compute_adjacent_pair_scores_batched(
         valid_pair_mask = valid_token_mask[:, :-1] & valid_token_mask[:, 1:]
         return scores.masked_fill(~valid_pair_mask, float("-inf"))
 
-    # Slow path solo per pseudo-attention.
+    # Slow path only for pseudo-attention.
     token_vecs = flatten_token_vectors_batched(k_blocks)
 
     dim = token_vecs.shape[-1]
@@ -170,9 +170,9 @@ def build_intra_frame_batch(
     frame_lengths,
 ):
     """
-    Costruisce un pack batchato dei frame mutable per scoring intra-frame.
-    Scarta i frame con lunghezza <= 1 perché non hanno coppie adiacenti valide.
-    Ritorna k_blocks, valid_mask, frame_offsets e frame_indices originali.
+    Builds a batched pack of the mutable frames for intra-frame scoring.
+    Discards frames with length <= 1 because they have no valid adjacent pairs.
+    Returns k_blocks, valid_mask, frame_offsets and the original frame_indices.
     """
     frame_lengths = [int(x) for x in frame_lengths if int(x) > 0]
     valid_frame_lengths = [int(x) for x in frame_lengths if int(x) > 1]
@@ -222,14 +222,14 @@ def build_intra_frame_batch(
 
 def select_topk_non_overlapping_pairs(pair_scores: torch.Tensor, k: int) -> torch.Tensor:
     """
-    Selezione veloce approssimata per coppie adiacenti non-overlap.
+    Fast approximate selection for non-overlapping adjacent pairs.
 
     Idea:
-    - tutte le coppie pari non si sovrappongono tra loro
-    - tutte le coppie dispari non si sovrappongono tra loro
-    - scegliamo il lato, pari o dispari, con somma score migliore
+    - all even pairs do not overlap each other
+    - all odd pairs do not overlap each other
+    - we pick the side, even or odd, with the best score sum
 
-    Molto più veloce del greedy Python.
+    Much faster than the Python greedy.
     """
     k = int(k)
 
@@ -436,9 +436,9 @@ def build_inter_pair_meta(
     hat_frame_lengths,
 ) -> List[InterPairMeta]:
     """
-    Costruisce il metadata delle coppie inter-frame source -> reference.
-    Le coppie sono mutable[i]->mutable[i+1] più last_mutable->first_hat se esiste.
-    Ritorna una lista ordinata di descrittori leggeri senza allocare tensoroni.
+    Builds the metadata of the inter-frame source -> reference pairs.
+    The pairs are mutable[i]->mutable[i+1] plus last_mutable->first_hat if it exists.
+    Returns an ordered list of lightweight descriptors without allocating big tensors.
     """
     mutable_frame_lengths = [int(x) for x in mutable_frame_lengths if int(x) > 0]
     hat_frame_lengths = [int(x) for x in hat_frame_lengths if int(x) > 0]
@@ -495,9 +495,9 @@ def pack_inter_pair_chunk(
     pair_meta_chunk: List[InterPairMeta],
 ):
     """
-    Materializza un piccolo chunk di coppie inter-frame in tensori padded.
-    Usa mut_k + hat_k come spazio combined ma mantiene source offsets riferiti alla mutable.
-    Ritorna old_blocks/new_blocks, mask e metadata di mapping per la selezione.
+    Materializes a small chunk of inter-frame pairs into padded tensors.
+    Uses mut_k + hat_k as the combined space but keeps source offsets relative to the mutable.
+    Returns old_blocks/new_blocks, masks and mapping metadata for the selection.
     """
     if not pair_meta_chunk:
         return None, None, None, None, None, None
@@ -544,9 +544,9 @@ def compute_inter_token_scores_batched(
     strategy: str,
 ) -> torch.Tensor:
     """
-    Calcola score token-wise del source frame rispetto al reference frame.
-    Supporta max-cosine e context-attention per il caso inter-frame.
-    Ritorna score di forma [Npairs, Lold].
+    Computes token-wise scores of the source frame with respect to the reference frame.
+    Supports max-cosine and context-attention for the inter-frame case.
+    Returns scores of shape [Npairs, Lold].
     """
     strategy = str(strategy).lower()
 
@@ -587,9 +587,9 @@ def collect_inter_token_candidates_chunked(
     chunk_size: int,
 ):
     """
-    Score-a le coppie inter-frame a chunk per evitare picchi di memoria.
-    Accumula candidati globali senza costruire in anticipo tutti i tensoroni.
-    Ritorna score, indici globali, pair_ids e src_lengths per la selezione finale.
+    Scores the inter-frame pairs in chunks to avoid memory peaks.
+    Accumulates global candidates without building all the big tensors up front.
+    Returns scores, global indices, pair_ids and src_lengths for the final selection.
     """
     pair_meta = build_inter_pair_meta(
         mutable_frame_lengths=mutable_frame_lengths,
@@ -679,9 +679,9 @@ def select_topk_tokens_per_source(
     k: int,
 ) -> torch.Tensor:
     """
-    Seleziona i migliori token globali imponendo un budget per frame source.
-    Mantiene almeno un token nel frame source quindi non consuma mai tutto il frame.
-    Ritorna indici token-wise riferiti alla mutable.
+    Selects the best global tokens while enforcing a budget per source frame.
+    Keeps at least one token in the source frame so it never consumes the whole frame.
+    Returns token-wise indices relative to the mutable.
     """
     k = int(k)
 
@@ -1172,7 +1172,7 @@ def select_lowest_score_tokens(
 
     k = min(k, candidate_scores.numel())
 
-    # value_norm: rimuovi i token con score PIU' BASSO
+    # value_norm: remove the tokens with the LOWEST score
     chosen = torch.topk(candidate_scores, k=k, largest=False).indices
     removed = candidate_global_indices[chosen]
 

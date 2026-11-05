@@ -167,7 +167,7 @@ def collect_hd_epic_targets(annotations: list[dict[str, Any]]) -> dict[str, list
 
         m = HD_EPIC_ID_RE.match(vid)
         if not m:
-            print(f"[WARN] HD-EPIC video_id non in formato trim: {vid}")
+            print(f"[WARN] HD-EPIC video_id is not in trim format: {vid}")
             continue
 
         base = m.group(1)
@@ -175,7 +175,7 @@ def collect_hd_epic_targets(annotations: list[dict[str, Any]]) -> dict[str, list
         end = float(m.group(3))
 
         if end <= start:
-            print(f"[WARN] HD-EPIC trim invalido: {vid}")
+            print(f"[WARN] HD-EPIC invalid trim range: {vid}")
             continue
 
         targets[base].append((vid, start, end))

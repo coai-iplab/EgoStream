@@ -32,41 +32,8 @@ RECALL_COLUMN_SUFFIX: Dict[str, str] = {
     "ultra_long_term": "ultra-long",
 }
 
-# Memory budget rules.
-# Base 16:
-# - mutable = 8192
-# - HAT = 448 * 2 = 896
-# - SINK = 9804 - 8192 - 896 = 716
-#
-# 16_1:
-# - mutable = 8192 * 2
-#
-# 16_2:
-# - mutable = 8192 * 4
-#
-# 16_3:
-# - mutable = 8192 * 6
-#
-# Per tutte le altre configurazioni senza divisione esplicita:
-# - total = 9804
-BASE_MUTABLE_BUDGET = 8192
-HAT_BUDGET_PER_SIDE = 448
-HAT_BUDGET_TOTAL = HAT_BUDGET_PER_SIDE * 2
-BASE_TOTAL_BUDGET = 9804
-BASE_SINK_BUDGET = BASE_TOTAL_BUDGET - BASE_MUTABLE_BUDGET - HAT_BUDGET_TOTAL
-
-MEMORY_BUDGET_MULTIPLIERS = {
-    "16_0.12": 1 / 8,
-    "16_0.25": 1 / 4,
-    "16_0.5": 1 / 2,
-    "16": 1,
-    "16_1": 2,
-    "16_2": 4,
-    "16_3": 6,
-}
-
-# Metriche che vogliamo aggregare nel foglio globale.
-# Per ciascuna metrica numerica viene creata solo la colonna avg_.
+# Metrics aggregated in the global sheet.
+# Only the avg_ column is created for every numeric metric.
 NUMERIC_METRIC_PATHS: Dict[str, Tuple[str, ...]] = {
     "absolute_question_time_sec": ("absolute_question_time_sec",),
     "avg_frame_time_sec": ("metrics", "avg_frame_time"),
@@ -183,7 +150,39 @@ def load_json_flexible(path: Path) -> List[Dict[str, Any]]:
     if items:
         return items
 
-    raise ValueError(f"Formato JSON non riconosciuto: {path}")
+    raise ValueError(f"Unrecognised JSON format: {path}")
+
+
+def natural_key(path: Path) -> List[Any]:
+    parts = re.split(r"(\d+)", path.name)
+    return [int(part) if part.isdigit() else part.lower() for part in parts]
+
+
+def load_run_predictions(run_dir: Path) -> List[Dict[str, Any]]:
+    """Load the predictions of one experiment folder.
+
+    Uses merged.json when present; otherwise merges every part_<rank>.json written
+    by the runners, keeping the last occurrence of each
+    (annotation_id, recall regime, video_id) key.
+    """
+    merged_path = run_dir / "merged.json"
+    if merged_path.exists():
+        return load_json_flexible(merged_path)
+
+    part_files = sorted(run_dir.glob("part_*.json"), key=natural_key)
+    if not part_files:
+        raise FileNotFoundError(f"No merged.json or part_*.json found in {run_dir}")
+
+    merged_by_key: Dict[str, Dict[str, Any]] = {}
+    for part in part_files:
+        for item in load_json_flexible(part):
+            key = (
+                f"{item.get('annotation_id')}::"
+                f"{item.get('absolute_question_time_type')}::"
+                f"{item.get('video_id', '')}"
+            )
+            merged_by_key[key] = item
+    return list(merged_by_key.values())
 
 
 def normalize_text(value: Any) -> str:
@@ -292,8 +291,8 @@ def build_annotation_index(
 
     if duplicate_ids:
         print(
-            f"[WARN] Trovati {len(duplicate_ids)} annotation_id duplicati "
-            f"nel file annotazioni. Userò il primo match."
+            f"[WARN] {len(duplicate_ids)} duplicated annotation_id values "
+            f"in the annotation file; the first occurrence is used."
         )
 
     return ann_by_id
@@ -408,17 +407,12 @@ def add_primary_secondary_observation(
 
 
 def evaluate_run(run_dir: Path, ann_by_id: Dict[Any, Dict[str, Any]]) -> Dict[str, Any]:
-    merged_path = run_dir / "merged.json"
-
-    if not merged_path.exists():
-        raise FileNotFoundError(f"merged.json non trovato in {run_dir}")
-
-    raw_items = load_json_flexible(merged_path)
+    raw_items = load_run_predictions(run_dir)
 
     if not raw_items:
-        raise ValueError(f"Nessun record trovato in {merged_path}")
+        raise ValueError(f"No prediction records found in {run_dir}")
 
-    # Teniamo solo le inferenze che hanno match nelle annotazioni.
+    # Keep only the predictions that match an annotation.
     items: List[Dict[str, Any]] = []
     missing_annotation_ids = set()
 
@@ -432,8 +426,8 @@ def evaluate_run(run_dir: Path, ann_by_id: Dict[Any, Dict[str, Any]]) -> Dict[st
 
     if not items:
         raise ValueError(
-            f"Tutti i record di {merged_path} sono stati scartati: "
-            f"nessun match con le annotazioni."
+            f"All records of {run_dir} were discarded: "
+            f"no annotation_id matched the annotation file."
         )
 
     correctness = [infer_is_correct(x) for x in items]
@@ -443,7 +437,6 @@ def evaluate_run(run_dir: Path, ann_by_id: Dict[Any, Dict[str, Any]]) -> Dict[st
     summary: Dict[str, Any] = {
         "experiment_name": run_dir.name,
         "run_dir": str(run_dir),
-        "merged_file": str(merged_path),
         "n_items_raw": len(raw_items),
         "n_items_skipped_no_annotation": len(raw_items) - len(items),
         "n_items": len(items),
@@ -520,8 +513,8 @@ def evaluate_run(run_dir: Path, ann_by_id: Dict[Any, Dict[str, Any]]) -> Dict[st
         if dataset is not None and str(dataset).strip() != "":
             dataset_to_values.setdefault(str(dataset).strip(), []).append(correct_bool)
 
-        # Foglio primary_category_accuracy:
-        # accuratezza calcolata solo sulla primaryLabel.
+        # Sheet primary_category_accuracy:
+        # accuracy computed on primaryLabel only.
         primary_label = ann.get("primaryLabel")
         primary_label_str = ""
 
@@ -534,25 +527,25 @@ def evaluate_run(run_dir: Path, ann_by_id: Dict[Any, Dict[str, Any]]) -> Dict[st
 
             recall_name = str(item.get("absolute_question_time_type"))
 
-            # Foglio primary_cat_no_ultra:
-            # accuratezza per primaryLabel su tutte le inferenze eccetto ultra_long_term.
+            # Sheet primary_cat_no_ultra:
+            # accuracy per primaryLabel over every regime except ultra_long_term.
             if recall_name != "ultra_long_term":
                 primary_category_no_ultra_to_values.setdefault(
                     primary_label_str,
                     [],
                 ).append(correct_bool)
 
-            # Foglio primary_cat_no_long_ultra:
-            # accuratezza per primaryLabel su tutte le inferenze eccetto
-            # long_term_recall e ultra_long_term.
+            # Sheet primary_cat_no_long_ultra:
+            # accuracy per primaryLabel over every regime except
+            # long_term_recall and ultra_long_term.
             if recall_name not in {"long_term_recall", "ultra_long_term"}:
                 primary_category_no_long_ultra_to_values.setdefault(
                     primary_label_str,
                     [],
                 ).append(correct_bool)
 
-            # Foglio primary_category_recall_time:
-            # accuratezza per primaryLabel x recall time.
+            # Sheet primary_category_recall_time:
+            # accuracy per primaryLabel x recall regime.
             if recall_name in RECALL_ORDER:
                 primary_category_recall_to_values.setdefault(
                     primary_label_str,
@@ -569,14 +562,14 @@ def evaluate_run(run_dir: Path, ann_by_id: Dict[Any, Dict[str, Any]]) -> Dict[st
                 role="primary",
             )
 
-        # Foglio primary_secondary_accuracy:
-        # accuratezza calcolata contando sia primaryLabel sia secondaryLabels.
+        # Sheet primary_secondary_accuracy:
+        # accuracy counting both primaryLabel and secondaryLabels.
         secondary_labels = ann.get("secondaryLabels")
 
         if isinstance(secondary_labels, list):
             for secondary_label in sorted_unique_strings(secondary_labels):
-                # Evitiamo doppio conteggio se una label appare sia come primary sia
-                # come secondary.
+                # Avoid double counting when a label is both primary and
+                # secondary.
                 if primary_label_str and secondary_label == primary_label_str:
                     continue
 
@@ -651,7 +644,6 @@ def make_global_sheet(results: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
     first_cols = [
         "experiment_name",
         "run_dir",
-        "merged_file",
         "n_items_raw",
         "n_items_skipped_no_annotation",
         "n_items",
@@ -745,8 +737,8 @@ def make_primary_category_recall_time_sheet(
         for label in payload["primary_category_recall_accuracy"].keys()
     )
 
-    # Mappa interna:
-    # (label, recall_name) -> nome colonna con sample count.
+    # Internal map:
+    # (label, recall_name) -> column name holding the sample count.
     column_name_by_key: Dict[Tuple[str, str], str] = {}
 
     columns = ["experiment_name"]
@@ -880,214 +872,6 @@ def make_dataset_sheet(results: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("experiment_name").reset_index(drop=True)
 
 
-def infer_memory_budget_from_experiment_name(experiment_name: str) -> Dict[str, Any]:
-    """
-    Inferisce il memory budget dal nome esperimento.
-
-    Regola:
-    - 16    usa mutable = 8192
-    - 16_1  usa mutable = 8192 * 2
-    - 16_2  usa mutable = 8192 * 4
-    - 16_3  usa mutable = 8192 * 6
-
-    Per queste configurazioni:
-    total = mutable + HAT + SINK
-    dove:
-    - HAT = 448 * 2
-    - SINK = 9804 - 8192 - HAT
-
-    Per tutte le altre configurazioni:
-    total = 9804.
-    """
-
-    exp = str(experiment_name).strip()
-
-    # Cattura prefissi tipo:
-    # 16_Q3VL8B_...
-    # 16_1_Q3VL8B_...
-    # 16_2_Q3VL8B_...
-    # 16_3_Q3VL8B_...
-    match = re.match(r"^(16(?:_(?:0\.12|0\.25|0\.5|1|2|3))?)(?:_|$)", exp)
-
-    if match:
-        strategy_id = match.group(1)
-        multiplier = MEMORY_BUDGET_MULTIPLIERS[strategy_id]
-
-        mutable_budget = BASE_MUTABLE_BUDGET * multiplier
-        hat_budget = HAT_BUDGET_TOTAL
-        sink_budget = BASE_SINK_BUDGET
-        total_budget = mutable_budget + hat_budget + sink_budget
-
-        return {
-            "experiment_name": experiment_name,
-            "strategy_id": strategy_id,
-            "has_budget_division": True,
-            "mutable_multiplier": multiplier,
-            "mutable_budget_tokens": mutable_budget,
-            "hat_budget_tokens": hat_budget,
-            "sink_budget_tokens": sink_budget,
-            "total_budget_tokens": total_budget,
-            "base_total_budget_tokens": BASE_TOTAL_BUDGET,
-            "budget_rule": (
-                f"mutable={BASE_MUTABLE_BUDGET}*{multiplier}, "
-                f"HAT={HAT_BUDGET_PER_SIDE}*2, "
-                f"SINK={BASE_SINK_BUDGET}"
-            ),
-        }
-
-    return {
-        "experiment_name": experiment_name,
-        "strategy_id": "",
-        "has_budget_division": False,
-        "mutable_multiplier": None,
-        "mutable_budget_tokens": None,
-        "hat_budget_tokens": None,
-        "sink_budget_tokens": None,
-        "total_budget_tokens": BASE_TOTAL_BUDGET,
-        "base_total_budget_tokens": BASE_TOTAL_BUDGET,
-        "budget_rule": "no explicit division; total budget = 9804",
-    }
-
-
-def make_memory_budget_sheet(results: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
-    rows = []
-
-    for experiment_name in sorted(results.keys()):
-        rows.append(infer_memory_budget_from_experiment_name(experiment_name))
-
-    columns = [
-        "experiment_name",
-        "strategy_id",
-        "has_budget_division",
-        "mutable_multiplier",
-        "mutable_budget_tokens",
-        "hat_budget_tokens",
-        "sink_budget_tokens",
-        "total_budget_tokens",
-        "base_total_budget_tokens",
-        "budget_rule",
-    ]
-
-    return (
-        pd.DataFrame(rows, columns=columns)
-        .sort_values("experiment_name")
-        .reset_index(drop=True)
-    )
-
-
-def is_budget_variant_experiment(experiment_name: str) -> bool:
-    """
-    True per:
-    - 16_0.12_...
-    - 16_0.25_...
-    - 16_0.5_...
-    - 16_1_...
-    - 16_2_...
-    - 16_3_...
-
-    Questi esperimenti vanno esclusi dalle tab standard dalla seconda in poi.
-    Mantiene invece il baseline 16_...
-    """
-    exp = str(experiment_name).strip()
-
-    return re.match(r"^16_(?:0\.12|0\.25|0\.5|1|2|3)(?:_|$)", exp) is not None
-
-def is_budget16_family_experiment(experiment_name: str) -> bool:
-    """
-    True per:
-    - 16_...
-    - 16_0.12_...
-    - 16_0.25_...
-    - 16_0.5_...
-    - 16_1_...
-    - 16_2_...
-    - 16_3_...
-    """
-    exp = str(experiment_name).strip()
-
-    return re.match(r"^16(?:_(?:0\.12|0\.25|0\.5|1|2|3))?(?:_|$)", exp) is not None
-
-def filter_out_budget_variants(
-    results: Dict[str, Dict[str, Any]],
-) -> Dict[str, Dict[str, Any]]:
-    """
-    Rimuove 16_1, 16_2, 16_3 dalle tab standard.
-    Mantiene invece 16.
-    """
-    return {
-        experiment_name: payload
-        for experiment_name, payload in results.items()
-        if not is_budget_variant_experiment(experiment_name)
-    }
-
-
-def filter_budget16_family(
-    results: Dict[str, Dict[str, Any]],
-) -> Dict[str, Dict[str, Any]]:
-    """
-    Tiene solo 16, 16_1, 16_2, 16_3.
-    Serve per le nuove tab budget-specific.
-    """
-    return {
-        experiment_name: payload
-        for experiment_name, payload in results.items()
-        if is_budget16_family_experiment(experiment_name)
-    }
-
-
-def add_memory_budget_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Aggiunge le colonne di memory budget a una tab già costruita,
-    usando experiment_name come chiave.
-    """
-    if df.empty or "experiment_name" not in df.columns:
-        return df
-
-    budget_rows = [
-        infer_memory_budget_from_experiment_name(exp)
-        for exp in df["experiment_name"].tolist()
-    ]
-
-    budget_df = pd.DataFrame(budget_rows)
-
-    budget_cols = [
-        "experiment_name",
-        "strategy_id",
-        "mutable_multiplier",
-        "mutable_budget_tokens",
-        "hat_budget_tokens",
-        "sink_budget_tokens",
-        "total_budget_tokens",
-        "budget_rule",
-    ]
-
-    budget_df = budget_df[[c for c in budget_cols if c in budget_df.columns]]
-
-    merged = df.merge(
-        budget_df,
-        on="experiment_name",
-        how="left",
-    )
-
-    # Mettiamo le colonne budget subito dopo experiment_name.
-    first_cols = [
-        "experiment_name",
-        "strategy_id",
-        "mutable_multiplier",
-        "mutable_budget_tokens",
-        "hat_budget_tokens",
-        "sink_budget_tokens",
-        "total_budget_tokens",
-        "budget_rule",
-    ]
-
-    ordered_cols = [c for c in first_cols if c in merged.columns] + [
-        c for c in merged.columns if c not in first_cols
-    ]
-
-    return merged[ordered_cols]
-
-
 def autosize_and_style_excel(path: Path) -> None:
     wb = load_workbook(path)
 
@@ -1128,19 +912,8 @@ def autosize_and_style_excel(path: Path) -> None:
             "primary_cat_no_long_ultra",
             "primary_category_recall_time",
             "dataset_accuracy",
-            "recall_budget16",
-            "primary_cat_budget16",
         }:
-            non_percentage_cols = {
-                "experiment_name",
-                "strategy_id",
-                "mutable_multiplier",
-                "mutable_budget_tokens",
-                "hat_budget_tokens",
-                "sink_budget_tokens",
-                "total_budget_tokens",
-                "budget_rule",
-            }
+            non_percentage_cols = {"experiment_name"}
 
             for idx, cell in enumerate(ws[1], start=1):
                 if cell.value not in non_percentage_cols:
@@ -1151,17 +924,6 @@ def autosize_and_style_excel(path: Path) -> None:
                 if isinstance(cell.value, str) and cell.value.startswith("accuracy"):
                     percentage_col_idxs.add(idx)
 
-        integer_col_idxs = set()
-
-        if ws.title in {
-            "memory_budget",
-            "recall_budget16",
-            "primary_cat_budget16",
-        }:
-            for idx, cell in enumerate(ws[1], start=1):
-                if isinstance(cell.value, str) and cell.value.endswith("_tokens"):
-                    integer_col_idxs.add(idx)
-
         for row in ws.iter_rows(min_row=2):
             for cell in row:
                 if (
@@ -1170,11 +932,6 @@ def autosize_and_style_excel(path: Path) -> None:
                 ):
                     cell.number_format = "0.0%"
 
-                if (
-                    cell.column in integer_col_idxs
-                    and isinstance(cell.value, (float, int))
-                ):
-                    cell.number_format = "#,##0"
 
     wb.save(path)
 
@@ -1184,7 +941,7 @@ def find_experiment_dirs(inference_root: Path) -> List[Path]:
         [
             p
             for p in inference_root.iterdir()
-            if p.is_dir() and any(p.glob("part_*.json"))
+            if p.is_dir() and (any(p.glob("part_*.json")) or (p / "merged.json").exists())
         ],
         key=lambda p: p.name,
     )
@@ -1229,10 +986,10 @@ def main() -> None:
     )
 
     if not inference_root.exists() or not inference_root.is_dir():
-        raise ValueError(f"Inference root non valida: {inference_root}")
+        raise ValueError(f"Invalid inference root: {inference_root}")
 
     if not annotations_path.exists():
-        raise ValueError(f"File annotazioni non trovato: {annotations_path}")
+        raise ValueError(f"Annotation file not found: {annotations_path}")
 
     annotation_items = load_json_flexible(annotations_path)
     ann_by_id = build_annotation_index(annotation_items)
@@ -1241,11 +998,11 @@ def main() -> None:
 
     if not experiment_dirs:
         raise ValueError(
-            "Nessuna sottocartella che inizi con un numero trovata dentro Inference."
+            f"No experiment folder with predictions found in {inference_root}"
         )
 
-    print(f"Annotazioni caricate : {len(annotation_items)}")
-    print(f"Esperimenti trovati  : {len(experiment_dirs)}")
+    print(f"Annotations loaded : {len(annotation_items)}")
+    print(f"Experiments found  : {len(experiment_dirs)}")
 
     results: Dict[str, Dict[str, Any]] = {}
     skipped: List[Tuple[str, str]] = []
@@ -1260,15 +1017,10 @@ def main() -> None:
             print(f"[SKIP] {run_dir.name}: {exc}")
 
     if not results:
-        raise ValueError("Nessun esperimento valutato con successo.")
+        raise ValueError("No experiment could be evaluated.")
 
-    # global_metrics mantiene tutti gli esperimenti,
-    # inclusi 16_1, 16_2, 16_3.
     global_df = make_global_sheet(results)
-
-    # Le tab standard dalla seconda in poi escludono 16_1, 16_2, 16_3.
-    # Mantengono invece 16.
-    standard_results = filter_out_budget_variants(results)
+    standard_results = results
 
     recall_df = make_recall_sheet(standard_results)
     primary_category_df = make_primary_category_sheet(standard_results)
@@ -1289,22 +1041,6 @@ def main() -> None:
 
     primary_secondary_df = make_primary_secondary_sheet(standard_results)
     dataset_df = make_dataset_sheet(standard_results)
-
-    # Nuove tab dedicate al confronto dei memory budget:
-    # - recall_budget16 replica la tab 2, ma solo per 16/16_1/16_2/16_3
-    # - primary_cat_budget16 replica la tab 3, ma solo per 16/16_1/16_2/16_3
-    budget16_results = filter_budget16_family(results)
-
-    recall_budget16_df = add_memory_budget_columns(
-        make_recall_sheet(budget16_results)
-    )
-
-    primary_category_budget16_df = add_memory_budget_columns(
-        make_primary_category_sheet(budget16_results)
-    )
-
-    # Tab completa di documentazione budget per tutti gli esperimenti.
-    memory_budget_df = make_memory_budget_sheet(results)
 
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
         global_df.to_excel(writer, sheet_name="global_metrics", index=False)
@@ -1351,33 +1087,14 @@ def main() -> None:
             index=False,
         )
 
-        recall_budget16_df.to_excel(
-            writer,
-            sheet_name="recall_budget16",
-            index=False,
-        )
-
-        primary_category_budget16_df.to_excel(
-            writer,
-            sheet_name="primary_cat_budget16",
-            index=False,
-        )
-
-        memory_budget_df.to_excel(
-            writer,
-            sheet_name="memory_budget",
-            index=False,
-        )
 
     autosize_and_style_excel(output_path)
 
-    print(f"\nExcel creato: {output_path}")
-    print(f"Esperimenti salvati: {len(results)}")
-    print(f"Esperimenti nelle tab standard: {len(standard_results)}")
-    print(f"Esperimenti nel budget sweep 16: {len(budget16_results)}")
-
+    print(f"\nExcel written: {output_path}")
+    print(f"Experiments saved: {len(results)}")
+    
     if skipped:
-        print(f"Esperimenti saltati: {len(skipped)}")
+        print(f"Experiments skipped: {len(skipped)}")
 
         for name, reason in skipped:
             print(f" - {name}: {reason}")

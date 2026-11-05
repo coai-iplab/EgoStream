@@ -10,7 +10,7 @@ The pipeline has five main phases:
 4. Ingest video frames through a sliding-window sampler.
 5. Ask a question using the built cache and generate the answer.
 
-The current single-video tester expects a non-`PurgeableCache` sliding-window setup. It rejects `cache.type == "PurgeableCache"` and also rejects configurations where `video_processing.use_sliding_window` is not enabled.
+The runners expect a sliding-window setup: `cache.type` must be `"FlexibleCache"` and `video_processing.use_sliding_window` must be enabled.
 
 ---
 
@@ -343,10 +343,7 @@ The cache is built through `create_cache_from_config`, which maps JSON fields in
 #### `cache.type`
 
 **Type:** string  
-**Supported for this tester:** `"FlexibleCache"`  
-**Not supported by this tester:** `"PurgeableCache"`
-
-The current single-video tester raises an error if `cache.type` is `PurgeableCache`.
+**Supported value:** `"FlexibleCache"`
 
 #### `cache.MAX_FRAMES_TO_PROCESS`
 

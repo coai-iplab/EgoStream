@@ -9,9 +9,9 @@ import torch
 @dataclass
 class FrameState:
     """
-    Mantiene lo stato dei frame nella cache.
-    Tiene traccia sia delle lunghezze storiche sia del pending append.
-    Espone helper semplici per split mutable/hat e finalize visual-only.
+    Maintains the state of the frames in the cache.
+    Keeps track of both the historical lengths and the pending append.
+    Exposes simple helpers for the mutable/hat split and the visual-only finalize.
     """
     frame_token_history: List[int] = field(default_factory=list)
     next_frame_idx: int = 0
@@ -22,9 +22,9 @@ class FrameState:
 
     def add_frame_tokens(self, frame_token_counts) -> None:
         """
-        Aggiunge i token per frame al tracking storico.
-        Accetta un int singolo o una lista di int positivi.
-        Aggiorna anche il contatore dei frame visti.
+        Adds the per-frame tokens to the historical tracking.
+        Accepts a single int or a list of positive ints.
+        Also updates the counter of frames seen.
         """
         if isinstance(frame_token_counts, int):
             frame_token_counts = [frame_token_counts]
@@ -43,9 +43,9 @@ class FrameState:
         frame_pruning_enabled: bool,
     ) -> Tuple[List[int], List[int]]:
         """
-        Divide le lunghezze dei frame in mutable e hat.
-        La split a frame vale solo se hat_category == 'frames' e pruning frame-aware è attivo.
-        Ritorna due liste: mutable_lengths e hat_lengths.
+        Splits the frame lengths into mutable and hat.
+        The frame-level split applies only if hat_category == 'frames' and frame-aware pruning is active.
+        Returns two lists: mutable_lengths and hat_lengths.
         """
         frame_lengths = [int(x) for x in self.frame_token_history if int(x) > 0]
 
@@ -65,9 +65,9 @@ class FrameState:
 
     def set_frame_lengths(self, mutable_lengths, hat_lengths) -> None:
         """
-        Sovrascrive completamente le frame lengths tracciate.
-        Filtra eventuali frame non positivi prima di salvare.
-        Mantiene la convenzione: mutable seguiti da hat.
+        Completely overwrites the tracked frame lengths.
+        Filters out any non-positive frames before saving.
+        Keeps the convention: mutable followed by hat.
         """
         mutable_lengths = [int(x) for x in mutable_lengths if int(x) > 0]
         hat_lengths = [int(x) for x in hat_lengths if int(x) > 0]
@@ -75,9 +75,9 @@ class FrameState:
 
     def frame_offsets(self, frame_lengths) -> List[Tuple[int, int]]:
         """
-        Converte le lunghezze frame in intervalli [start, end).
-        Gli offset sono relativi alla sola regione mutable/combined passata in input.
-        Ritorna una lista ordinata di tuple (start, end).
+        Converts the frame lengths into [start, end) intervals.
+        The offsets are relative only to the mutable/combined region passed as input.
+        Returns an ordered list of (start, end) tuples.
         """
         offsets = []
         cursor = 0
@@ -91,9 +91,9 @@ class FrameState:
 
     def trim_frame_lengths_from_left(self, frame_lengths, tokens_to_trim: int) -> List[int]:
         """
-        Simula un trim temporale da sinistra sulle frame lengths.
-        Rimuove token dai frame più vecchi fino a consumare tokens_to_trim.
-        Ritorna la nuova lista di lunghezze residue.
+        Simulates a temporal trim from the left on the frame lengths.
+        Removes tokens from the oldest frames until tokens_to_trim is consumed.
+        Returns the new list of remaining lengths.
         """
         frame_lengths = [int(x) for x in frame_lengths if int(x) > 0]
         tokens_to_trim = int(tokens_to_trim)
@@ -127,9 +127,9 @@ class FrameState:
         frame_pruning_enabled: bool,
     ) -> int:
         """
-        Calcola la hat size corrente.
-        Se la hat è definita a frame e il pruning è frame-aware, usa le frame lengths tracciate.
-        Altrimenti ritorna la hat size statica passata dal chiamante.
+        Computes the current hat size.
+        If the hat is defined in frames and the pruning is frame-aware, uses the tracked frame lengths.
+        Otherwise returns the static hat size passed by the caller.
         """
         if (
             frame_pruning_enabled
@@ -150,9 +150,9 @@ class FrameState:
         frame_pruning_enabled: bool,
     ):
         """
-        Costruisce i boundary assoluti dei frame nella cache corrente.
-        I frame mutable partono dopo sink_size e gli hat stanno in coda.
-        Ritorna una lista di dict utili per debug e stampa.
+        Builds the absolute frame boundaries in the current cache.
+        Mutable frames start after sink_size and the hat frames sit at the tail.
+        Returns a list of dicts useful for debugging and printing.
         """
         mutable_lengths, hat_lengths = self.split_frame_lengths_by_hat(
             use_hat_tokens=use_hat_tokens,
@@ -202,9 +202,9 @@ class FrameState:
         appended_seq_len: int,
     ) -> None:
         """
-        Salva il pending stato necessario a finalizzare un append visual-only.
-        Verifica che il numero di token visuali nel mask coincida con frame_token_counts.
-        Non modifica ancora keys/values: prepara solo il metadata.
+        Stores the pending state needed to finalize a visual-only append.
+        Checks that the number of visual tokens in the mask matches frame_token_counts.
+        Does not modify keys/values yet: it only prepares the metadata.
         """
         if isinstance(frame_token_counts, int):
             frame_token_counts = [frame_token_counts]
@@ -237,9 +237,9 @@ class FrameState:
         values: torch.Tensor,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Tiene solo i token visuali dell'ultimo append usando il pending metadata.
-        Aggiorna lo storico dei frame solo dopo aver filtrato keys/values.
-        Ritorna i nuovi tensori keys e values già puliti.
+        Keeps only the visual tokens of the last append using the pending metadata.
+        Updates the frame history only after filtering keys/values.
+        Returns the new keys and values tensors already cleaned.
         """
         if self.pending_visual_indices is None:
             return keys, values

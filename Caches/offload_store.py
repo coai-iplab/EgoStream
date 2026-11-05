@@ -11,16 +11,16 @@ import torch
 
 class DiskOffloadStore:
     """
-    Store minimale per KV offloaded su disco.
+    Minimal store for KV offloaded to disk.
 
-    Supporta due modalità:
-    - raw: salva keys/values nel dtype originale
-    - quantized int8 per-tensor: salva q_keys/q_values + scale
+    Supports two modes:
+    - raw: saves keys/values in the original dtype
+    - quantized int8 per-tensor: saves q_keys/q_values + scale
 
-    Nota:
-    - questa quantizzazione riguarda SOLO lo storage offloaded
-    - non cambia la forward
-    - load_chunk/load_chunks servono per retrieval QA-time
+    Note:
+    - this quantization ONLY concerns the offloaded storage
+    - it does not change the forward
+    - load_chunk/load_chunks are used for QA-time retrieval
     """
 
     def __init__(
@@ -58,10 +58,10 @@ class DiskOffloadStore:
 
     def __deepcopy__(self, memo):
         """
-        Le cache clonate per QA/tail non devono sovrascrivere i chunk del master.
+        Caches cloned for QA/tail must not overwrite the master's chunks.
 
-        Condividono i chunk già esistenti, ma scrivono eventuali nuovi chunk in
-        una nuova dir. Le statistiche vengono copiate.
+        They share the already existing chunks, but write any new chunks into
+        a new dir. The statistics are copied.
         """
         base_root = self.root_dir.parent.parent.parent
 
@@ -105,7 +105,7 @@ class DiskOffloadStore:
     @staticmethod
     def _quantize_int8_per_tensor(x: torch.Tensor):
         """
-        Quantizzazione simmetrica int8 per-tensor.
+        Symmetric int8 per-tensor quantization.
         """
         x_cpu = x.detach().cpu()
         x_float = x_cpu.float()
@@ -208,10 +208,10 @@ class DiskOffloadStore:
         quant_scheme=None,
     ):
         """
-        Salva un chunk offloaded su disco.
+        Saves an offloaded chunk to disk.
 
-        Il comportamento può essere controllato globalmente dallo store oppure
-        localmente dallo step pipeline tramite quantize/quant_bits/quant_scheme.
+        The behavior can be controlled globally by the store or
+        locally by the pipeline step through quantize/quant_bits/quant_scheme.
         """
         if keys is None or values is None or keys.numel() == 0:
             return None
@@ -279,9 +279,9 @@ class DiskOffloadStore:
         device: Optional[torch.device] = None,
     ):
         """
-        Carica un chunk e lo dequantizza se necessario.
+        Loads a chunk and dequantizes it if necessary.
 
-        Ritorna:
+        Returns:
             keys, values, payload
         """
         record = self.chunks[int(chunk_idx)]

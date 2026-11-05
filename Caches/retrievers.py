@@ -10,7 +10,7 @@ import torch.nn.functional as F
 
 @dataclass
 class _BlockCandidate:
-    source: str  # "offload" oppure "live"
+    source: str  # "offload" or "live"
     score: float
     token_len: int
     frame_lengths: List[int]
@@ -43,9 +43,9 @@ def _score_block_against_query(k_block: torch.Tensor, query_vec: torch.Tensor) -
 
 def _iter_frame_blocks(frame_lengths: Sequence[int], block_size_frames: int):
     """
-    Yield blocchi di frame consecutivi.
+    Yield blocks of consecutive frames.
 
-    Ritorna tuple:
+    Returns tuples:
         token_start, token_end, block_frame_lengths, first_frame_idx
     """
     fls = [int(x) for x in frame_lengths if int(x) > 0]
@@ -68,7 +68,7 @@ def _iter_frame_blocks(frame_lengths: Sequence[int], block_size_frames: int):
 
 def _extract_keys_from_past(past_key_values, layer_idx: int = 0) -> torch.Tensor:
     """
-    Estrae le keys di layer_idx da diversi formati di past_key_values.
+    Extracts the keys of layer_idx from different past_key_values formats.
     """
     pkv = past_key_values
 
@@ -100,12 +100,12 @@ def _build_question_key_proxy(
     dtype: Optional[torch.dtype] = None,
 ) -> torch.Tensor:
     """
-    Costruisce una query vector nello spazio keys usando una probe forward text-only.
+    Builds a query vector in key space using a text-only probe forward.
 
-    È una proxy ReKV-internal conservativa:
-        question_vector = mean(keys dei token domanda/chat)
+    It is a conservative ReKV-internal proxy:
+        question_vector = mean(keys of the question/chat tokens)
 
-    Non modifica la cache video principale.
+    It does not modify the main video cache.
     """
     if device is None:
         device = model.device
@@ -149,7 +149,7 @@ def _build_question_key_proxy(
         kwargs["position_ids"] = position_ids
         kwargs["rope_deltas"] = text_rope_deltas
     except Exception:
-        # Alcuni wrapper non richiedono rope_deltas espliciti.
+        # Some wrappers do not require explicit rope_deltas.
         pass
 
     with torch.no_grad():
@@ -301,8 +301,8 @@ def _select_top_blocks_bounded(
             continue
 
         if used + cand.token_len > top_k_tokens:
-            # Manteniamo blocchi interi. Se nessun blocco è stato selezionato,
-            # accettiamo il migliore anche se supera il budget.
+            # We keep whole blocks. If no block has been selected yet,
+            # we accept the best one even if it exceeds the budget.
             if not selected:
                 selected.append(cand)
             continue
@@ -401,13 +401,13 @@ def rekv(
     Score:
         block_score = cosine(mean_key_block, mean_key_question_proxy)
 
-    Candidati:
+    Candidates:
         offloaded mutable blocks + live mutable blocks
 
     Output:
         sink + selected_mutable_blocks_temporal_order + hat
 
-    Sink e hat non entrano mai nella selezione e restano preservati dal layer.
+    Sink and hat never take part in the selection and remain preserved by the layer.
     """
     if not hasattr(cache, "layers") or not cache.layers:
         return {"retrieved": False, "reason": "cache_has_no_layers"}
@@ -482,7 +482,7 @@ def rekv(
     selected_offload_blocks = int(sum(1 for c in selected if c.source == "offload"))
     selected_live_blocks = int(sum(1 for c in selected if c.source == "live"))
 
-    # Evita che la ricostruzione venga subito compressa/offloadata.
+    # Prevents the rebuilt cache from being immediately compressed/offloaded.
     if hasattr(cache, "set_QA"):
         cache.set_QA(True)
 

@@ -130,8 +130,8 @@ class FlexibleCacheLayer(CacheLayerMixin):
         self.offload_empty_cache = bool(kwargs.get("offload_empty_cache", True))
 
         # Quantized disk offloading.
-        # Nota: questa quantizzazione riguarda solo lo storage offloaded.
-        # Non cambia la cache live usata nel forward.
+        # Note: this quantization only concerns the offloaded storage.
+        # It does not change the live cache used in the forward.
         self.offload_quantize = bool(kwargs.get("offload_quantize", False))
         self.offload_quant_bits = int(kwargs.get("offload_quant_bits", 8))
         self.offload_quant_scheme = str(kwargs.get("offload_quant_scheme", "per_tensor"))
@@ -276,7 +276,7 @@ class FlexibleCacheLayer(CacheLayerMixin):
                 left -= fl
                 continue
 
-            # split parziale del frame, come già accade col left trim
+            # partial split of the frame, as already happens with the left trim
             offloaded.append(left)
             remaining_lengths.append(fl - left)
             left = 0
@@ -1103,12 +1103,12 @@ class FlexibleCacheLayer(CacheLayerMixin):
 
     def get_mutable_for_retrieve(self):
         """
-        Espone la mutable corrente per i retriever QA-time.
+        Exposes the current mutable region for the QA-time retrievers.
 
-        Ritorna:
+        Returns:
             mut_k, mut_v, mutable_frame_lengths
 
-        Sink e hat sono esclusi: non partecipano mai alla selezione retrieval.
+        Sink and hat are excluded: they never take part in the retrieval selection.
         """
         if self.adakv_enabled:
             raise RuntimeError(
@@ -1126,12 +1126,12 @@ class FlexibleCacheLayer(CacheLayerMixin):
         new_mutable_frame_lengths,
     ) -> int:
         """
-        Ricostruisce la mutable dopo retrieval query-aware.
+        Rebuilds the mutable region after query-aware retrieval.
 
-        Layout finale:
+        Final layout:
             sink + new_mutable + hat
 
-        Sink e hat sono preservati a prescindere.
+        Sink and hat are preserved regardless.
         """
         if new_mut_k is None or new_mut_v is None:
             return 0

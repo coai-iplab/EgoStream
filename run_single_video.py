@@ -111,8 +111,6 @@ def main():
         cache_cfg["debug_cache_layout"] = False
         cache_cfg["debug_tracking"] = False
 
-    if cache_cfg.get("type") == "PurgeableCache":
-        raise NotImplementedError("Only the sliding-window FlexibleCache is supported (cache.type = 'FlexibleCache').")
     if not vid_params.get("use_sliding_window", False):
         raise RuntimeError("video_processing.use_sliding_window must be true.")
 

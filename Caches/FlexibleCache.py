@@ -156,13 +156,13 @@ class FlexibleCache(Cache):
 
     def retrieve_for_qa(self, method: str = "rekv", **kwargs):
         """
-        Entry point estendibile per retrieval QA-time.
+        Extensible entry point for QA-time retrieval.
 
         method="rekv":
-            ReKV-like internal retrieval su block/frame:
+            ReKV-like internal retrieval on blocks/frames:
             score = cosine(mean_key_block, mean_key_question_proxy)
 
-        In futuro puoi aggiungere altri metodi in Caches/retrievers.py.
+        In the future you can add other methods in Caches/retrievers.py.
         """
         from . import retrievers
 
