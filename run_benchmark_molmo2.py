@@ -1,3 +1,4 @@
+import builtins
 import os
 import gc
 import copy
@@ -790,14 +791,14 @@ def main():
     if os.path.exists(args.config):
         config = load_config(args.config)
     else:
-        __builtins__.print(f"Config file {args.config} not found.")
+        builtins.print(f"Config file {args.config} not found.")
         return
 
     verbose = config.get("verbose", False)
     import functools
 
     if verbose:
-        print = functools.partial(__builtins__.print, flush=True)
+        print = functools.partial(builtins.print, flush=True)
     else:
         print = lambda *args, **kwargs: None
 
@@ -853,7 +854,7 @@ def main():
                     normal_rank_count,
                     seed=global_seed,
                 )
-            __builtins__.print(
+            builtins.print(
                 f"[DEBUG WATCH] annotation_id={item.get('annotation_id')} "
                 f"video_id_raw={vid!r} "
                 f"video_id_clean={vid_clean!r} "
@@ -865,7 +866,7 @@ def main():
     for item in my_dataset:
         vid = str(item.get("resolved_video_id") or item.get("video_id") or item.get("clip_uid") or "")
         if vid.strip() in watch_video_ids:
-            __builtins__.print(
+            builtins.print(
                 f"[RANK {args.rank} HAS WATCH] annotation_id={item.get('annotation_id')} "
                 f"video_id={vid!r} time_type={item.get('absolute_question_time_type')}",
                 flush=True,

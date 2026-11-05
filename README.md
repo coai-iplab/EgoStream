@@ -70,8 +70,10 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-`requirements.txt` pins `torch==2.6.0` and `transformers==4.57.0`: the cache code patches
-model internals and is only validated against these versions.
+`requirements.txt` pins `torch==2.6.0` and `transformers==4.57.1`: the cache code patches
+model internals and is only validated against these versions. On Windows install the CUDA
+build of torch first (`pip install torch==2.6.0 torchvision==0.21.0 --index-url
+https://download.pytorch.org/whl/cu124`), then the requirements.
 
 **Flash Attention (optional).** All runners try `flash_attention_2` first and fall back to
 PyTorch SDPA when it is not installed. To reproduce the reported timings install the wheel
@@ -107,6 +109,15 @@ prompt, streams the video at 1 FPS through the configured memory policy and answ
 `internvl3_5_8b_*.json`, `molmo2_8b_*.json`, `qwen3vl_8b_adakv.json`, `qwen3vl_8b_stc.json`
 and the `qwen3vl_2b_*.json` variants for small GPUs. Add `--fast` for a two-frame smoke
 test. Paths inside single-video configs are resolved relative to the config file.
+
+**Smoke test on a small GPU.** `configs/single_video/smoke/` runs every memory policy
+(FIFO, pruning, merging, pipeline, int8 offloading with retrieval, Ada-KV, STC) on
+Qwen3-VL-2B with a 1,024-token budget and 4-frame windows, so that memory management
+triggers even on a 15-second clip. Each run takes well under a minute on an 8 GB laptop GPU:
+
+```bash
+for c in configs/single_video/smoke/qwen3vl_2b_*.json; do python run_single_video.py --config "$c" --max-new-tokens 48; done
+```
 
 ## Running the benchmark
 

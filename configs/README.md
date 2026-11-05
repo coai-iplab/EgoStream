@@ -303,6 +303,7 @@ Shortcut: `python scripts/create_stc_config_from_baseline.py <baseline.json> <ou
 | `qwen3vl_8b/t11_fifo_sink_hat_stc` | Table 11, STC |
 | `internvl3_5_8b/`, `molmo2_8b/` | Table 6 (`t6_r05` to `t6_r12`) plus `extra_*` policies run with the same protocol |
 | `single_video/` | one-video presets for each backbone, Ada-KV and STC included |
+| `single_video/smoke/` | every policy on Qwen3-VL-2B (plus InternVL 3.5-2B) with a 1,024-token budget and 4-frame windows: installation check on small GPUs |
 
 The row-by-row mapping with the literature labels is in the root [`README.md`](../README.md).
 
