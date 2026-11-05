@@ -3,25 +3,362 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="EGOSTREAM is a diagnostic benchmark for streaming episodic memory in egocentric vision." />
-  <title>EGOSTREAM | Streaming Episodic Memory</title>
+  <title>EgoStream: Streaming Episodic Memory Benchmark for Egocentric Video (NeurIPS 2026)</title>
+  <meta name="description" content="EgoStream is a diagnostic benchmark for streaming episodic memory in egocentric video: 2,250 curated questions over seven memory dimensions, expanded into 8,528 recall-conditioned evaluations through the Answer Validity Window, plus a unified framework that compares KV-cache memory-management policies (sliding windows, attention sinks, token pruning, merging, adaptive head budgets, offloading) in streaming multimodal LLMs. NeurIPS 2026." />
+  <meta name="keywords" content="streaming video benchmark, episodic memory benchmark, egocentric video, video question answering, streaming multimodal LLM, video LLM memory, KV cache, KV-cache pruning, token merging, KV-cache offloading, Ada-KV, attention sinks, Answer Validity Window, recall regimes, Ego4D, EgoLife, EgoTempo, Multi-Hop EgoQA, HD-EPIC, NeurIPS 2026" />
+  <meta name="author" content="Rosario Forte, Giuseppe Lando, Antonino Furnari" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
   <link rel="canonical" href="https://coai-iplab.github.io/EgoStream/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="EGOSTREAM: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision" />
-  <meta property="og:description" content="2,250 curated questions over seven memory dimensions, expanded into 8,528 recall-conditioned evaluations through the Answer Validity Window. NeurIPS 2026 Datasets and Benchmarks." />
+  <meta property="og:site_name" content="EgoStream" />
+  <meta property="og:title" content="EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision" />
+  <meta property="og:description" content="2,250 curated questions over seven memory dimensions, expanded into 8,528 recall-conditioned evaluations through the Answer Validity Window. A unified framework to compare KV-cache memory policies in streaming video LLMs. NeurIPS 2026, Track on Evaluations and Datasets." />
   <meta property="og:url" content="https://coai-iplab.github.io/EgoStream/" />
   <meta property="og:image" content="https://coai-iplab.github.io/EgoStream/assets/egostream-teaser.png" />
+  <meta property="og:image:alt" content="Overview of the EgoStream benchmark: evidence moments, Answer Validity Windows, memory categories and recall regimes" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision" />
+  <meta name="twitter:description" content="Streaming episodic memory benchmark for egocentric video with Answer Validity Windows and a unified KV-cache memory framework. NeurIPS 2026." />
+  <meta name="twitter:image" content="https://coai-iplab.github.io/EgoStream/assets/egostream-teaser.png" />
+  <meta name="citation_title" content="EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision" />
+  <meta name="citation_author" content="Forte, Rosario" />
+  <meta name="citation_author" content="Lando, Giuseppe" />
+  <meta name="citation_author" content="Furnari, Antonino" />
+  <meta name="citation_publication_date" content="2026" />
+  <meta name="citation_conference_title" content="Advances in Neural Information Processing Systems (NeurIPS 2026), Track on Evaluations and Datasets" />
+  <meta name="citation_arxiv_id" content="2605.31557" />
+  <meta name="citation_pdf_url" content="https://arxiv.org/pdf/2605.31557" />
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://coai-iplab.github.io/EgoStream/#coai",
+      "name": "Co-AI Research Group, University of Catania",
+      "url": "https://coai-iplab.github.io/",
+      "parentOrganization": {
+        "@type": "CollegeOrUniversity",
+        "name": "University of Catania",
+        "url": "https://www.unict.it/"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://coai-iplab.github.io/EgoStream/#website",
+      "url": "https://coai-iplab.github.io/EgoStream/",
+      "name": "EgoStream",
+      "publisher": {
+        "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+      }
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "@id": "https://coai-iplab.github.io/EgoStream/#paper",
+      "headline": "EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision",
+      "name": "EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision",
+      "author": [
+        {
+          "@type": "Person",
+          "name": "Rosario Forte",
+          "url": "https://coai-iplab.github.io/team/rosario_forte",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        },
+        {
+          "@type": "Person",
+          "name": "Giuseppe Lando",
+          "url": "https://coai-iplab.github.io/team/giuseppe_lando",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        },
+        {
+          "@type": "Person",
+          "name": "Antonino Furnari",
+          "url": "https://antoninofurnari.github.io",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        }
+      ],
+      "datePublished": "2026-05-29",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Neural Information Processing Systems (NeurIPS)",
+        "url": "https://neurips.cc/Conferences/2026"
+      },
+      "isPartOf": {
+        "@type": "Periodical",
+        "name": "Advances in Neural Information Processing Systems (NeurIPS 2026), Track on Evaluations and Datasets"
+      },
+      "identifier": "arXiv:2605.31557",
+      "url": "https://arxiv.org/abs/2605.31557",
+      "sameAs": [
+        "https://arxiv.org/abs/2605.31557",
+        "https://coai-iplab.github.io/research/forte2026egostream/"
+      ],
+      "abstract": "Continuous episodic memory is a core capability for autonomous agents operating in dynamic, real-world environments, yet current streaming video benchmarks provide limited tools for diagnosing what models remember and for how long. We introduce EgoStream, a diagnostic benchmark for streaming episodic memory evaluation in egocentric vision. EgoStream organizes 2,250 curated questions along seven cognitive dimensions: detail, spatial, temporal, event, social, causal, and prospective memory. We introduce the Answer Validity Window (AVW), which specifies the temporal span an answer remains valid as the observed scene evolves. This allows us to expand the questions into 8,528 recall-conditioned evaluations, enabling controlled testing from instant to ultra-long-term recall while separating genuine model forgetting from natural world-state changes. We rigorously establish baseline performance through a unified streaming MLLM framework that compares several state-of-the-art memory-management mechanisms, covering sliding windows, attention sinks, KV-cache pruning, merging, adaptive head budgets, and offloading. Experiments on a unified Qwen3-VL backbone, with consistent trends on Molmo2-8B and InternVL3.5-8B, reveal that comparable aggregate accuracies mask starkly different memory profiles. For instance, token pruning preserves fine-grained details and temporal structure significantly better than token merging, adaptive head budgets yield the highest aggregate semantic accuracy, while quantized offloading rescues ultra-long-term recall. Ultimately, all in-cache memory policies operate well below real-time (>1s per frame), and top performing in-cache methods ceil at about 45% accuracy under a 9,804-token budget, exposing critical gaps in current architectures. EgoStream provides the diagnostic testbed needed to close these gaps.",
+      "keywords": "streaming video benchmark, episodic memory benchmark, egocentric video, video question answering, streaming multimodal LLM, video LLM memory, KV cache, KV-cache pruning, token merging, KV-cache offloading, Ada-KV, attention sinks, Answer Validity Window, recall regimes, Ego4D, EgoLife, EgoTempo, Multi-Hop EgoQA, HD-EPIC, NeurIPS 2026",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "Dataset",
+      "@id": "https://coai-iplab.github.io/EgoStream/#dataset",
+      "name": "EgoStream",
+      "alternateName": [
+        "EGOSTREAM",
+        "EgoStream benchmark",
+        "EgoStream streaming episodic memory benchmark"
+      ],
+      "description": "EgoStream is a diagnostic benchmark for streaming episodic memory in egocentric video: 2,250 curated questions over seven memory dimensions, expanded into 8,528 recall-conditioned evaluations through the Answer Validity Window, plus a unified framework that compares KV-cache memory-management policies (sliding windows, attention sinks, token pruning, merging, adaptive head budgets, offloading) in streaming multimodal LLMs. NeurIPS 2026.",
+      "url": "https://coai-iplab.github.io/EgoStream/",
+      "sameAs": [
+        "https://arxiv.org/abs/2605.31557",
+        "https://github.com/coai-iplab/EgoStream",
+        "https://coai-iplab.github.io/research/forte2026egostream/"
+      ],
+      "creator": [
+        {
+          "@type": "Person",
+          "name": "Rosario Forte",
+          "url": "https://coai-iplab.github.io/team/rosario_forte",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        },
+        {
+          "@type": "Person",
+          "name": "Giuseppe Lando",
+          "url": "https://coai-iplab.github.io/team/giuseppe_lando",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        },
+        {
+          "@type": "Person",
+          "name": "Antonino Furnari",
+          "url": "https://antoninofurnari.github.io",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        }
+      ],
+      "publisher": {
+        "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+      },
+      "datePublished": "2026-05-29",
+      "keywords": [
+        "streaming video benchmark",
+        "episodic memory benchmark",
+        "egocentric video",
+        "video question answering",
+        "streaming multimodal LLM",
+        "video LLM memory",
+        "KV cache",
+        "KV-cache pruning",
+        "token merging",
+        "KV-cache offloading",
+        "Ada-KV",
+        "attention sinks",
+        "Answer Validity Window",
+        "recall regimes",
+        "Ego4D",
+        "EgoLife",
+        "EgoTempo",
+        "Multi-Hop EgoQA",
+        "HD-EPIC",
+        "NeurIPS 2026"
+      ],
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": {
+        "@id": "https://coai-iplab.github.io/EgoStream/#paper"
+      },
+      "creativeWorkStatus": "Code and run configurations released; question annotations forthcoming",
+      "measurementTechnique": "Streaming video question answering with query-agnostic ingestion; 4-way multiple-choice accuracy per memory category and recall regime under a fixed KV-cache budget",
+      "variableMeasured": [
+        "accuracy per memory category (detail, spatial, temporal, event, social, causal, prospective)",
+        "accuracy per recall regime (instant to ultra-long-term)",
+        "processing time per frame"
+      ],
+      "size": "2,250 questions expanded into 8,528 recall-conditioned evaluations",
+      "isBasedOn": [
+        {
+          "@type": "Dataset",
+          "name": "Ego4D",
+          "url": "https://ego4d-data.org/"
+        },
+        {
+          "@type": "Dataset",
+          "name": "EgoLife",
+          "url": "https://egolife-ai.github.io/"
+        },
+        {
+          "@type": "Dataset",
+          "name": "EgoTempo",
+          "url": "https://arxiv.org/abs/2503.13646"
+        },
+        {
+          "@type": "Dataset",
+          "name": "Multi-Hop EgoQA",
+          "url": "https://arxiv.org/abs/2408.14469"
+        },
+        {
+          "@type": "Dataset",
+          "name": "HD-EPIC",
+          "url": "https://hd-epic.github.io/"
+        }
+      ]
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://coai-iplab.github.io/EgoStream/#code",
+      "name": "EgoStream streaming framework",
+      "codeRepository": "https://github.com/coai-iplab/EgoStream",
+      "url": "https://github.com/coai-iplab/EgoStream",
+      "programmingLanguage": "Python",
+      "runtimePlatform": "PyTorch",
+      "license": "https://opensource.org/licenses/MIT",
+      "author": [
+        {
+          "@type": "Person",
+          "name": "Rosario Forte",
+          "url": "https://coai-iplab.github.io/team/rosario_forte",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        },
+        {
+          "@type": "Person",
+          "name": "Giuseppe Lando",
+          "url": "https://coai-iplab.github.io/team/giuseppe_lando",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        },
+        {
+          "@type": "Person",
+          "name": "Antonino Furnari",
+          "url": "https://antoninofurnari.github.io",
+          "affiliation": {
+            "@id": "https://coai-iplab.github.io/EgoStream/#coai"
+          }
+        }
+      ],
+      "about": {
+        "@id": "https://coai-iplab.github.io/EgoStream/#dataset"
+      },
+      "description": "Unified streaming KV-cache framework for Qwen3-VL, InternVL 3.5 and Molmo 2 with sliding window, attention sinks, token pruning and merging, Ada-KV, offloading with retrieval and STC pre-prefill compression; one JSON config per paper experiment and an evaluation script."
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://coai-iplab.github.io/EgoStream/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is EgoStream?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "EgoStream is a diagnostic benchmark for streaming episodic memory in egocentric vision, published at NeurIPS 2026 (Track on Evaluations and Datasets). It contains 2,250 curated questions about first-person videos, organised in seven memory dimensions and expanded into 8,528 recall-conditioned evaluations, together with a unified framework that compares KV-cache memory-management policies in streaming multimodal LLMs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is EgoStream a streaming video benchmark?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Models must process the video sequentially and answer each question using only the frames observed up to the query time, while keeping a compact internal memory instead of an unbounded frame buffer. Ingestion is query-agnostic: the question is revealed only at recall time."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which KV-cache memory-management methods does EgoStream evaluate?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sliding windows (FIFO), attention sinks, protected recent-frame tokens, intra-frame and inter-frame token pruning (cosine redundancy, pseudo-attention, value norm, sink-guided attention), token merging, Ada-KV adaptive head budgets, disk offloading and int8 quantized offloading with retrieval, and pre-prefill token compression (STC). They reproduce the behaviour of StreamingVLM, StreamMem, InfiniPot-V, StreamingTOM, ReKV, CaM and Ada-KV inside one KV-cache implementation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the Answer Validity Window (AVW)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The AVW is the time span, after all the evidence for a question has been seen, during which the annotated answer remains factually valid as the scene keeps changing. Sampling query times inside the AVW lets EgoStream measure forgetting without confusing it with answers that became obsolete."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are the recall regimes?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Seven log-spaced delays between the end of the evidence and the question: instant (0 s), short (0-5 s), short-mid (5-30 s), mid (30 s-3 min), mid-long (3-30 min), long (30 min-8 h) and ultra-long (over 8 h). They follow memory-consolidation timescales from cognitive science, from working memory to hippocampal-cortical transfer."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which memory dimensions are tested?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Detail (what), spatial (where), temporal (when), event (how / did it occur), social (who), causal (why) and prospective (what next). The taxonomy follows the classic episodic-memory framework of Tulving and later work on spatial, temporal, event, social, causal and prospective memory."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which source datasets are the questions built from?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ego4D Episodic Memory VQA (498 questions), EgoLife (433), EgoTempo (425), Multi-Hop EgoQA (578) and HD-EPIC (316). Every question was validated by human annotators; videos stay with the original datasets and are never redistributed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does EgoStream differ from EgoSchema, StreamingBench or EgoLifeQA?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Those benchmarks cover at most some of the following: egocentric video, online streaming, evidence grounding and a memory taxonomy. EgoStream is the only one that combines all four with Answer Validity Windows and multiple recall regimes per question, so that it measures what is remembered and for how long rather than only aggregate accuracy."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What do current models score on EgoStream?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "On Qwen3-VL-8B with a 9,804-token budget the best in-cache policies reach about 45% semantic accuracy (Ada-KV 45.88%, intra-frame cosine pruning 45.63%), against 29.53% for a plain sliding window and 25.42% for a text-only baseline; every in-cache policy runs slower than real time (more than 1 s per frame on an A100)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the data available?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The streaming framework, every run configuration of the paper and the data preparation scripts are released on GitHub. The question annotations will be published on this page; videos must be obtained from the five source datasets under their own licenses."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I cite EgoStream?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Cite the NeurIPS 2026 paper: Rosario Forte, Giuseppe Lando and Antonino Furnari, \"EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision\", Advances in Neural Information Processing Systems (NeurIPS), Track on Evaluations and Datasets, 2026. BibTeX is provided on this page."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
 </head>
 <body>
   <header class="site-header" id="top">
     <nav class="nav wrap" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="EGOSTREAM home">
+      <a class="brand" href="#top" aria-label="EgoStream home">
         <img class="brand-logo" src="assets/egostream-icon-transparent.png" alt="" />
         <span>EGOSTREAM</span>
       </a>
@@ -31,9 +368,12 @@
       <div class="nav-links" id="nav-links">
         <a href="#benchmark">Benchmark</a>
         <a href="#memory">Memory</a>
-        <a href="#overview">Overview</a>
         <a href="#regimes">Regimes</a>
-        <a href="#protocol">Protocol</a>
+        <a href="#results">Results</a>
+        <a href="#compare">Compare</a>
+        <a href="#framework">Code</a>
+        <a href="#faq">FAQ</a>
+        <a href="#cite">Cite</a>
       </div>
     </nav>
   </header>
@@ -42,32 +382,41 @@
     <section class="hero">
       <div class="wrap hero-grid">
         <div class="hero-copy reveal">
-          <p class="eyebrow">Research paper</p>
+          <a class="venue-badge" href="https://neurips.cc/Conferences/2026" target="_blank" rel="noopener noreferrer" aria-label="NeurIPS 2026, Track on Evaluations and Datasets">
+            <img src="assets/neurips-logo.svg" alt="NeurIPS" />
+            <span>NeurIPS 2026 &middot; Track on Evaluations and Datasets</span>
+          </a>
           <h1>EGOSTREAM</h1>
           <h2 class="paper-title">A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision</h2>
           <div class="paper-meta" aria-label="Paper authors and affiliation">
             <p class="authors">
-              Rosario Forte, Giuseppe Lando, Antonino Furnari
+              <a href="https://coai-iplab.github.io/team/rosario_forte">Rosario Forte</a>,
+              <a href="https://coai-iplab.github.io/team/giuseppe_lando">Giuseppe Lando</a>,
+              <a href="https://antoninofurnari.github.io">Antonino Furnari</a>
             </p>
             <p class="affiliation">
-              University of Catania
+              <a href="https://coai-iplab.github.io/">Co-AI Research Group</a>, Department of Mathematics and Computer Science, University of Catania
             </p>
           </div>
           <p class="summary">
-            EGOSTREAM asks what models remember, for how long, and when an answer stops being valid
-            as the observed world changes.
+            EgoStream is a <strong>streaming video benchmark for episodic memory</strong>: it measures what a
+            multimodal LLM remembers from a first-person video stream, for how long, and when an answer stops
+            being valid as the world changes. It ships with a unified framework to compare
+            <strong>KV-cache memory-management policies</strong> under one protocol.
           </p>
           <div class="release-banner" role="status">
-            <strong>DATA COMING SOON</strong>
-            <span>The benchmark data is not publicly released yet.</span>
+            <strong>CODE RELEASED</strong>
+            <span>Framework, run configurations and data scripts are on GitHub. Question annotations coming soon.</span>
           </div>
           <div class="hero-badges" aria-label="Core benchmark properties">
             <span>Egocentric video</span>
-            <span>Evidence grounded</span>
             <span>Streaming only</span>
+            <span>Evidence grounded</span>
+            <span>7 memory dimensions</span>
+            <span>7 recall regimes</span>
           </div>
           <div class="hero-actions">
-            <a class="btn primary paper-link arxiv-button" href="https://arxiv.org/abs/2605.31557" target="_blank" rel="noopener noreferrer">
+            <a class="btn primary paper-link arxiv-button" href="https://arxiv.org/abs/2605.31557" target="_blank" rel="noopener noreferrer" aria-label="Read the paper on arXiv">
               <img class="arxiv-logo" src="arxiv-logo-one-color-white.svg" alt="arXiv" />
             </a>
             <a class="btn ghost paper-link" href="https://github.com/coai-iplab/EgoStream" target="_blank" rel="noopener noreferrer">
@@ -76,10 +425,12 @@
               </svg>
               <span>Code on GitHub</span>
             </a>
+            <a class="btn ghost paper-link" href="#cite">Cite</a>
+            <a class="btn ghost paper-link" href="https://coai-iplab.github.io/research/forte2026egostream/" target="_blank" rel="noopener noreferrer">Co-AI page</a>
           </div>
         </div>
         <figure class="teaser reveal">
-          <img src="assets/egostream-teaser.png" alt="Overview of the EGOSTREAM benchmark with evidence moments, answer validity windows, memory categories, and recall regimes." />
+          <img src="assets/egostream-teaser.png" alt="Overview of the EgoStream benchmark: a first-person video stream with evidence moments, Answer Validity Windows, seven memory categories and seven recall regimes from instant to ultra-long-term." />
           <figcaption>Evidence-grounded questions, Answer Validity Windows, memory categories, and recall regimes.</figcaption>
         </figure>
       </div>
@@ -89,19 +440,24 @@
       <div class="section-head reveal">
         <p class="eyebrow">Benchmark</p>
         <h2>Streaming recall, measured carefully.</h2>
+        <p class="lead">
+          Each question is grounded in a specific evidence moment, assigned a memory category and asked
+          again at several delays inside its Answer Validity Window. The result is a diagnostic profile of
+          what a streaming model retains and when it forgets, not a single aggregate score.
+        </p>
       </div>
-      <div class="facts" aria-label="EGOSTREAM benchmark facts">
+      <div class="facts" aria-label="EgoStream benchmark facts">
         <article class="fact reveal">
           <strong>2,250</strong>
-          <span>validated memory questions</span>
+          <span>human-validated memory questions</span>
         </article>
         <article class="fact reveal">
           <strong>8,528</strong>
           <span>recall-conditioned evaluations</span>
         </article>
         <article class="fact reveal">
-          <strong>7</strong>
-          <span>episodic memory dimensions</span>
+          <strong>7 &times; 7</strong>
+          <span>memory dimensions &times; recall regimes</span>
         </article>
         <article class="fact reveal">
           <strong>45.3h</strong>
@@ -109,11 +465,33 @@
         </article>
       </div>
       <div class="source-strip reveal" aria-label="Source datasets">
-        <span>Ego4D</span>
-        <span>EgoLife</span>
-        <span>EgoTempo</span>
-        <span>Multi-Hop EgoQA</span>
-        <span>HD-EPIC</span>
+        <span>Ego4D Episodic Memory VQA &middot; 498</span>
+        <span>EgoLife &middot; 433</span>
+        <span>EgoTempo &middot; 425</span>
+        <span>Multi-Hop EgoQA &middot; 578</span>
+        <span>HD-EPIC &middot; 316</span>
+      </div>
+      <div class="info-grid use-grid">
+        <article class="info reveal">
+          <span>Use it to</span>
+          <h3>Benchmark streaming video LLMs</h3>
+          <p>Online, query-agnostic ingestion with a bounded memory budget: the setting of wearable assistants and embodied agents, not offline video QA.</p>
+        </article>
+        <article class="info reveal">
+          <span>Use it to</span>
+          <h3>Compare KV-cache memory policies</h3>
+          <p>Pruning, merging, adaptive head budgets, offloading and retrieval evaluated inside one cache implementation, same backbone, same prompts, same budget.</p>
+        </article>
+        <article class="info reveal">
+          <span>Use it to</span>
+          <h3>Measure episodic memory over time</h3>
+          <p>Seven cognitive dimensions probed at seven delays, from instant recall to more than eight hours, with forgetting separated from scene change.</p>
+        </article>
+        <article class="info reveal">
+          <span>Use it to</span>
+          <h3>Build egocentric memory assistants</h3>
+          <p>Where did I put the scissors, who was with me, did I close the door, what should I buy next: the questions a first-person assistant must answer.</p>
+        </article>
       </div>
     </section>
 
@@ -123,11 +501,12 @@
           <p class="eyebrow">Memory dimensions</p>
           <h2>What, where, when, how, who, why, and what next.</h2>
           <p>
-            The benchmark organizes questions into detail, spatial, temporal, event, social, causal,
-            and prospective memory.
+            Questions are organised along seven dimensions of episodic memory, building on Tulving's
+            account of episodic memory and on cognitive work on spatial, temporal, event, social, causal
+            and prospective memory. Each question receives one primary label and optional secondary tags.
           </p>
         </div>
-        <div class="category-list reveal" aria-label="Seven EGOSTREAM memory categories">
+        <div class="category-list reveal" aria-label="Seven EgoStream memory categories">
           <span>Detail</span>
           <span>Spatial</span>
           <span>Temporal</span>
@@ -137,6 +516,21 @@
           <span>Prospective</span>
         </div>
       </div>
+      <div class="wrap table-wrap dark-table reveal">
+        <table class="data-table">
+          <caption>Memory dimensions, cognitive probes and example queries</caption>
+          <thead><tr><th scope="col">Category</th><th scope="col">Probe</th><th scope="col">Focus</th><th scope="col">Example query</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Detail</th><td>What</td><td>object identity, attributes, counts</td><td><em>What did I put in the microwave?</em></td></tr>
+            <tr><th scope="row">Spatial</th><td>Where</td><td>location, placement, spatial relations</td><td><em>Where did I put the pair of scissors?</em></td></tr>
+            <tr><th scope="row">Temporal</th><td>When</td><td>order, sequence, time-indexed states</td><td><em>Where was the knife before I picked it up?</em></td></tr>
+            <tr><th scope="row">Event</th><td>How / Occurred</td><td>action gist, execution, state changes</td><td><em>Did I close the circuit breaker box?</em></td></tr>
+            <tr><th scope="row">Social</th><td>Who</td><td>people, interactions, co-presence</td><td><em>Who was with me when I ate?</em></td></tr>
+            <tr><th scope="row">Causal</th><td>Why</td><td>reasons, explanations for past events</td><td><em>Why didn&#x27;t we buy the chestnut kernels?</em></td></tr>
+            <tr><th scope="row">Prospective</th><td>What next</td><td>future plans and intended actions</td><td><em>What should I buy to decorate my room?</em></td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section class="section wrap" id="overview">
@@ -145,16 +539,18 @@
           <p class="eyebrow">Answer Validity Window</p>
           <h2>Validity matters.</h2>
           <p>
-            AVW marks the span during which a past answer remains factually correct, separating
-            model forgetting from natural scene changes.
+            The AVW is the span, after the last evidence moment, during which the annotated answer stays
+            factually correct. Query times are sampled only inside it, so a wrong answer means the model
+            forgot, not that the world moved on. Every window was reviewed by humans; 1.96% needed adjustment.
           </p>
         </article>
         <article class="quiet reveal">
-          <p class="eyebrow">Recall regimes</p>
-          <h2>From instant to ultra-long.</h2>
+          <p class="eyebrow">Streaming protocol</p>
+          <h2>Only what was seen so far.</h2>
           <p>
-            Questions are evaluated across recall regimes from 0 seconds through short, mid, long,
-            and ultra-long horizons.
+            Models process frames sequentially at 1 FPS and keep a compact internal memory. The question
+            is revealed only at recall time, after the ingestion of the stream up to that timestamp, so
+            memory management cannot peek at the query.
           </p>
         </article>
       </div>
@@ -163,7 +559,12 @@
     <section class="section wrap" id="regimes">
       <div class="section-head reveal">
         <p class="eyebrow">Recall regimes</p>
-        <h2>A log-scaled view of memory.</h2>
+        <h2>A log-scaled view of memory, grounded in memory science.</h2>
+        <p class="lead">
+          Delays follow the classical paradigm of probing memory at several retention intervals, from
+          Ebbinghaus' forgetting curve to consolidation timescales, so that the same question can test
+          working memory and long-term retention.
+        </p>
       </div>
       <div class="regime-track reveal" aria-label="Recall regimes from instant to ultra-long">
         <div><strong>Instant</strong><span>0s</span></div>
@@ -174,73 +575,211 @@
         <div><strong>Long</strong><span>30m-8h</span></div>
         <div><strong>Ultra-long</strong><span>8h+</span></div>
       </div>
+      <div class="table-wrap reveal">
+        <table class="data-table">
+          <caption>Recall regimes and the memory mechanisms they probe (paper Table 3)</caption>
+          <thead><tr><th scope="col">Regime</th><th scope="col">Delay</th><th scope="col">Memory mechanism</th><th scope="col">Psychological basis</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Instant</th><td>0 s</td><td>Perceptual buffer</td><td>Encoding and immediate retrieval</td></tr>
+            <tr><th scope="row">Short-term</th><td>0-5 s</td><td>Working memory</td><td>Active maintenance</td></tr>
+            <tr><th scope="row">Short-mid-term</th><td>5-30 s</td><td>Working memory</td><td>Attention-dependent retention</td></tr>
+            <tr><th scope="row">Mid-term</th><td>30 s-3 min</td><td>Transitional</td><td>Early synaptic consolidation</td></tr>
+            <tr><th scope="row">Mid-long-term</th><td>3-30 min</td><td>Intermediate</td><td>Synaptic consolidation</td></tr>
+            <tr><th scope="row">Long-term</th><td>30 min-8 h</td><td>Long-term</td><td>Late synaptic consolidation</td></tr>
+            <tr><th scope="row">Ultra-long-term</th><td>over 8 h</td><td>Long-term</td><td>Hippocampal-cortical transfer</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
-    <section class="section wrap" id="protocol">
+    <section class="section wrap" id="results">
       <div class="section-head reveal">
-        <p class="eyebrow">Protocol</p>
-        <h2>Designed for controlled streaming evaluation.</h2>
+        <p class="eyebrow">Results</p>
+        <h2>Same accuracy, different memories.</h2>
+        <p class="lead">
+          Twenty-one memory-management policies were run on a frozen Qwen3-VL-8B under a 9,804-token
+          active-cache budget (1 FPS, 896&times;512 frames, single A100), with the ranking confirmed on
+          InternVL 3.5-8B and Molmo 2-8B.
+        </p>
+      </div>
+      <div class="insight reveal">
+        <div>
+          <p class="eyebrow">Key findings</p>
+          <h2>No in-cache policy exceeds about 45%.</h2>
+        </div>
+        <div class="insight-list">
+          <p>A plain sliding window scores 29.53% semantic / 28.33% temporal accuracy; protecting the system prompt as sink tokens (StreamingVLM) lifts it to 44.74% / 39.05% at the same latency.</p>
+          <p>Adaptive head budgets (Ada-KV) give the best semantic average, 45.88%, with the best detail retention (57.04%); intra-frame cosine pruning reaches 45.63% with the best spatial retention (60.51%) at 2.28 s per frame.</p>
+          <p>Pruning beats merging on every backbone: discarding redundant tokens preserves fine-grained details and temporal structure, averaging blurs them (45.12% vs 41.87% with the pseudo-attention scorer).</p>
+          <p>Quantized offloading with retrieval (StreamingTOM) is the fastest policy, 1.43 s per frame, and rescues ultra-long-term recall (34.21%) at a small cost in average accuracy (42.86%).</p>
+          <p>Pre-prefill token compression (STC) reaches 47.18% semantic accuracy at 0.23 s per frame, above every in-cache policy; a text-only baseline scores 25.42%, chance level, so the questions cannot be solved from priors.</p>
+          <p>Budget matters with diminishing returns: 2.6K to 9.8K tokens raises semantic accuracy from 40.88% to 45.19%; 50.8K tokens peaks at 47.08% while nearly tripling processing time.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="compare">
+      <div class="section-head reveal">
+        <p class="eyebrow">Positioning</p>
+        <h2>How EgoStream compares with related benchmarks.</h2>
+        <p class="lead">
+          Existing egocentric and streaming VideoQA benchmarks cover parts of the problem. EgoStream is the
+          first to combine an egocentric, online, evidence-grounded protocol with an explicit memory
+          taxonomy, Answer Validity Windows and multiple recall regimes per question (paper Table 1).
+        </p>
+      </div>
+      <div class="table-wrap reveal">
+        <table class="data-table compare-table">
+          <caption>&#10003; covered &middot; &#9651; partially covered &middot; &#10007; not covered</caption>
+          <thead>
+            <tr><th scope="col">Benchmark</th><th scope="col">Egocentric</th><th scope="col">Online / streaming</th><th scope="col">Evidence grounding</th><th scope="col">Memory taxonomy</th><th scope="col">Answer Validity Window</th><th scope="col">Multiple recall regimes</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">MovieChat-1K</th><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-partial" aria-label="partial">&#9651;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">StreamingBench</th><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">EgoSchema</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">MM-Ego</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-partial" aria-label="partial">&#9651;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">EgoTextVQA</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">EgoTempo</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-partial" aria-label="partial">&#9651;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">OVO-Bench</th><td class="mark-partial" aria-label="partial">&#9651;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-partial" aria-label="partial">&#9651;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">GroundVQA</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">Multi-Hop EgoQA</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">HD-EPIC</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr><th scope="row">EgoLifeQA</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-partial" aria-label="partial">&#9651;</td><td class="mark-no" aria-label="no">&#10007;</td><td class="mark-no" aria-label="no">&#10007;</td></tr>
+            <tr class="ours"><th scope="row">EgoStream (ours)</th><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-yes" aria-label="yes">&#10003;</td><td class="mark-yes" aria-label="yes">&#10003;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section wrap" id="framework">
+      <div class="section-head reveal">
+        <p class="eyebrow">Framework</p>
+        <h2>One KV cache, every memory policy.</h2>
+        <p class="lead">
+          The released code isolates memory management as the only variable: the vision encoder, projector,
+          decoder and prompts stay fixed while a plug-in memory manager operates on the mutable region of the
+          cache. One JSON file describes each experiment of the paper.
+        </p>
       </div>
       <div class="info-grid">
         <article class="info reveal">
-          <span>01</span>
-          <h3>Curated egocentric sources</h3>
-          <p>
-            Questions are curated from Ego4D Episodic Memory VQA, EgoLife, EgoTempo,
-            Multi-Hop EgoQA, and HD-EPIC.
-          </p>
+          <span>Policies</span>
+          <h3>Sliding window, sinks, pruning, merging</h3>
+          <p>FIFO, attention sinks, protected recent frames, intra- and inter-frame pruning with cosine, pseudo-attention, value-norm and sink-guided scorers, token merging, composable pipelines.</p>
         </article>
         <article class="info reveal">
-          <span>02</span>
-          <h3>Query-agnostic streaming</h3>
-          <p>
-            Models process video sequentially and answer using only visual content observed up to
-            the recall time.
-          </p>
+          <span>Policies</span>
+          <h3>Ada-KV, offloading, retrieval, STC</h3>
+          <p>Adaptive per-head budgets, disk and int8 quantized offloading with ReKV-style retrieval at question time, StreamingTOM-like pipelines and STC pre-prefill compression.</p>
         </article>
         <article class="info reveal">
-          <span>03</span>
-          <h3>4-way evaluation</h3>
-          <p>
-            Performance is measured as multiple-choice accuracy, with breakdowns by memory
-            category and recall regime.
-          </p>
+          <span>Backbones</span>
+          <h3>Qwen3-VL, InternVL 3.5, Molmo 2</h3>
+          <p>The backbone is chosen from the config; the same runner, protocol and budget apply to all three families.</p>
         </article>
         <article class="info reveal">
-          <span>04</span>
-          <h3>Memory-management testbed</h3>
-          <p>
-            The unified framework compares sliding windows, attention sinks, KV-cache pruning,
-            merging, and offloading.
-          </p>
+          <span>Tooling</span>
+          <h3>Configs, evaluation, data scripts</h3>
+          <p>One config per table row, an evaluation script that breaks accuracy down by category and regime, and scripts that rebuild the clips from the five source datasets.</p>
         </article>
+      </div>
+      <div class="code-box reveal">
+        <pre><code>git clone https://github.com/coai-iplab/EgoStream.git
+cd EgoStream &amp;&amp; pip install -r requirements.txt
+python run_single_video.py --config configs/single_video/qwen3vl_8b_prune_intra_cs.json</code></pre>
+        <a class="btn ghost" href="https://github.com/coai-iplab/EgoStream" target="_blank" rel="noopener noreferrer">Open the repository</a>
       </div>
     </section>
 
-    <section class="section wrap">
-      <div class="insight reveal">
-        <div>
-          <p class="eyebrow">Current gap</p>
-          <h2>Reliable episodic memory is still open.</h2>
-        </div>
-        <div class="insight-list">
-          <p>
-            Aggregate scores can hide different memory profiles across semantic categories and recall horizons.
-          </p>
-          <p>
-            Token pruning better preserves detail and temporal structure, while quantized offloading helps ultra-long recall.
-          </p>
-          <p>
-            Top-performing mechanisms remain around a 45% ceiling and operate below real-time.
-          </p>
+    <section class="section wrap" id="faq">
+      <div class="section-head reveal">
+        <p class="eyebrow">FAQ</p>
+        <h2>Questions people ask about EgoStream.</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item reveal">
+          <summary><h3>What is EgoStream?</h3></summary>
+          <p>EgoStream is a diagnostic benchmark for streaming episodic memory in egocentric vision, published at NeurIPS 2026 (Track on Evaluations and Datasets). It contains 2,250 curated questions about first-person videos, organised in seven memory dimensions and expanded into 8,528 recall-conditioned evaluations, together with a unified framework that compares KV-cache memory-management policies in streaming multimodal LLMs.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>Is EgoStream a streaming video benchmark?</h3></summary>
+          <p>Yes. Models must process the video sequentially and answer each question using only the frames observed up to the query time, while keeping a compact internal memory instead of an unbounded frame buffer. Ingestion is query-agnostic: the question is revealed only at recall time.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>Which KV-cache memory-management methods does EgoStream evaluate?</h3></summary>
+          <p>Sliding windows (FIFO), attention sinks, protected recent-frame tokens, intra-frame and inter-frame token pruning (cosine redundancy, pseudo-attention, value norm, sink-guided attention), token merging, Ada-KV adaptive head budgets, disk offloading and int8 quantized offloading with retrieval, and pre-prefill token compression (STC). They reproduce the behaviour of StreamingVLM, StreamMem, InfiniPot-V, StreamingTOM, ReKV, CaM and Ada-KV inside one KV-cache implementation.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>What is the Answer Validity Window (AVW)?</h3></summary>
+          <p>The AVW is the time span, after all the evidence for a question has been seen, during which the annotated answer remains factually valid as the scene keeps changing. Sampling query times inside the AVW lets EgoStream measure forgetting without confusing it with answers that became obsolete.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>What are the recall regimes?</h3></summary>
+          <p>Seven log-spaced delays between the end of the evidence and the question: instant (0 s), short (0-5 s), short-mid (5-30 s), mid (30 s-3 min), mid-long (3-30 min), long (30 min-8 h) and ultra-long (over 8 h). They follow memory-consolidation timescales from cognitive science, from working memory to hippocampal-cortical transfer.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>Which memory dimensions are tested?</h3></summary>
+          <p>Detail (what), spatial (where), temporal (when), event (how / did it occur), social (who), causal (why) and prospective (what next). The taxonomy follows the classic episodic-memory framework of Tulving and later work on spatial, temporal, event, social, causal and prospective memory.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>Which source datasets are the questions built from?</h3></summary>
+          <p>Ego4D Episodic Memory VQA (498 questions), EgoLife (433), EgoTempo (425), Multi-Hop EgoQA (578) and HD-EPIC (316). Every question was validated by human annotators; videos stay with the original datasets and are never redistributed.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>How does EgoStream differ from EgoSchema, StreamingBench or EgoLifeQA?</h3></summary>
+          <p>Those benchmarks cover at most some of the following: egocentric video, online streaming, evidence grounding and a memory taxonomy. EgoStream is the only one that combines all four with Answer Validity Windows and multiple recall regimes per question, so that it measures what is remembered and for how long rather than only aggregate accuracy.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>What do current models score on EgoStream?</h3></summary>
+          <p>On Qwen3-VL-8B with a 9,804-token budget the best in-cache policies reach about 45% semantic accuracy (Ada-KV 45.88%, intra-frame cosine pruning 45.63%), against 29.53% for a plain sliding window and 25.42% for a text-only baseline; every in-cache policy runs slower than real time (more than 1 s per frame on an A100).</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>Is the data available?</h3></summary>
+          <p>The streaming framework, every run configuration of the paper and the data preparation scripts are released on GitHub. The question annotations will be published on this page; videos must be obtained from the five source datasets under their own licenses.</p>
+        </details>
+        <details class="faq-item reveal">
+          <summary><h3>How do I cite EgoStream?</h3></summary>
+          <p>Cite the NeurIPS 2026 paper: Rosario Forte, Giuseppe Lando and Antonino Furnari, &quot;EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision&quot;, Advances in Neural Information Processing Systems (NeurIPS), Track on Evaluations and Datasets, 2026. BibTeX is provided on this page.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section wrap" id="cite">
+      <div class="section-head reveal">
+        <p class="eyebrow">Citation</p>
+        <h2>Cite EgoStream.</h2>
+        <p class="lead">
+          Rosario Forte, Giuseppe Lando, Antonino Furnari. <em>EgoStream: A Diagnostic Benchmark for
+          Streaming Episodic Memory in Egocentric Vision.</em> Advances in Neural Information Processing
+          Systems (NeurIPS), Track on Evaluations and Datasets, 2026.
+        </p>
+      </div>
+      <div class="cite-box reveal">
+        <pre id="bibtex"><code>@inproceedings{forte2026egostream,
+  title     = {{EgoStream}: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision},
+  author    = {Forte, Rosario and Lando, Giuseppe and Furnari, Antonino},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS), Track on Evaluations and Datasets},
+  year      = {2026},
+  url       = {https://arxiv.org/abs/2605.31557}
+}</code></pre>
+        <div class="cite-actions">
+          <button class="btn ghost" type="button" data-copy="#bibtex">Copy BibTeX</button>
+          <a class="btn ghost" href="citation.bib" download>Download .bib</a>
         </div>
       </div>
     </section>
   </main>
 
   <footer class="footer wrap">
-    <p>EGOSTREAM, 2026.</p>
-    <a href="#top" data-scroll-top>Back to top</a>
+    <p>EgoStream &middot; <a href="https://coai-iplab.github.io/">Co-AI Research Group</a>, University of Catania &middot; 2026</p>
+    <div class="footer-links">
+      <a href="https://arxiv.org/abs/2605.31557">arXiv</a>
+      <a href="https://github.com/coai-iplab/EgoStream">GitHub</a>
+      <a href="https://coai-iplab.github.io/research/forte2026egostream/">Co-AI page</a>
+      <a href="https://neurips.cc/Conferences/2026">NeurIPS 2026</a>
+      <a href="#top" data-scroll-top>Back to top</a>
+    </div>
   </footer>
 
   <script src="script.js"></script>

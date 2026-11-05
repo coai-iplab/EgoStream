@@ -6,7 +6,7 @@
 
 [Rosario Forte](https://coai-iplab.github.io/team/rosario_forte), [Giuseppe Lando](https://coai-iplab.github.io/team/giuseppe_lando), [Antonino Furnari](https://antoninofurnari.github.io) · University of Catania
 
-**NeurIPS 2026, Datasets and Benchmarks Track** · [Paper (arXiv)](https://arxiv.org/abs/2605.31557) · [Project page](https://coai-iplab.github.io/EgoStream/)
+**NeurIPS 2026, Track on Evaluations and Datasets** · [Paper (arXiv)](https://arxiv.org/abs/2605.31557) · [Project page](https://coai-iplab.github.io/EgoStream/)
 
 EgoStream measures *what* a streaming multimodal LLM remembers from a first-person video
 stream and *for how long*. 2,250 curated questions over seven memory dimensions (detail,
@@ -219,7 +219,7 @@ baseline config.
 @inproceedings{forte2026egostream,
   title     = {EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision},
   author    = {Forte, Rosario and Lando, Giuseppe and Furnari, Antonino},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS), Datasets and Benchmarks Track},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS), Track on Evaluations and Datasets},
   year      = {2026}
 }
 ```

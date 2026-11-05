@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://coai-iplab.github.io/EgoStream/sitemap.xml

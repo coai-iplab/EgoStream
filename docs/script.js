@@ -36,3 +36,18 @@ if ('IntersectionObserver' in window) {
 } else {
   revealItems.forEach((item) => item.classList.add('visible'));
 }
+
+document.querySelectorAll('[data-copy]').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const target = document.querySelector(button.dataset.copy);
+    if (!target) return;
+    try {
+      await navigator.clipboard.writeText(target.textContent);
+      const label = button.textContent;
+      button.textContent = 'Copied';
+      setTimeout(() => { button.textContent = label; }, 1500);
+    } catch (error) {
+      window.getSelection()?.selectAllChildren(target);
+    }
+  });
+});

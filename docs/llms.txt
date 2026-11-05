@@ -1,0 +1,25 @@
+# EgoStream
+
+> EgoStream is a diagnostic benchmark for streaming episodic memory in egocentric (first-person) video, published at NeurIPS 2026 (Track on Evaluations and Datasets) by Rosario Forte, Giuseppe Lando and Antonino Furnari (Co-AI Research Group, University of Catania). It measures what a streaming multimodal LLM remembers, for how long, and when an answer stops being valid, and ships with a unified framework to compare KV-cache memory-management policies.
+
+## Key facts
+
+- 2,250 human-validated questions from Ego4D Episodic Memory VQA (498), EgoLife (433), EgoTempo (425), Multi-Hop EgoQA (578) and HD-EPIC (316).
+- Seven memory dimensions: detail (what), spatial (where), temporal (when), event (how / did it occur), social (who), causal (why), prospective (what next).
+- Answer Validity Window (AVW): the span after the evidence during which the annotated answer stays valid; questions are expanded into 8,528 recall-conditioned evaluations sampled inside it.
+- Seven recall regimes: instant (0 s), short (0-5 s), short-mid (5-30 s), mid (30 s-3 min), mid-long (3-30 min), long (30 min-8 h), ultra-long (over 8 h), aligned with memory-consolidation timescales.
+- Protocol: streaming, query-agnostic ingestion at 1 FPS, 896x512 frames, 4-way multiple choice, accuracy per category and per regime, processing time per frame.
+- Framework: one KV-cache implementation with sliding window (FIFO), attention sinks, protected recent frames, intra/inter-frame pruning (cosine, pseudo-attention, value norm, sink-guided), token merging, Ada-KV adaptive head budgets, disk and int8 offloading with ReKV-style retrieval, StreamingTOM-like pipelines and STC pre-prefill compression; backbones Qwen3-VL-8B, InternVL 3.5-8B, Molmo 2-8B.
+- Headline results (Qwen3-VL-8B, 9,804-token budget): sliding window 29.53% semantic accuracy; + sink tokens (StreamingVLM) 44.74%; Ada-KV 45.88% (best in-cache); intra-frame cosine pruning 45.63%; StreamingTOM-style quantized offloading 42.86% at 1.43 s/frame with the best ultra-long recall; STC pre-prefill compression 47.18% at 0.23 s/frame; text-only baseline 25.42% (chance). All in-cache policies run slower than real time (more than 1 s per frame on an A100).
+- Status: code, run configurations and data scripts released under MIT; question annotations forthcoming; videos must be obtained from the source datasets.
+
+## Links
+
+- [Project page](https://coai-iplab.github.io/EgoStream/)
+- [Paper on arXiv](https://arxiv.org/abs/2605.31557)
+- [Code on GitHub](https://github.com/coai-iplab/EgoStream)
+- [Co-AI research page](https://coai-iplab.github.io/research/forte2026egostream/)
+
+## Citation
+
+Forte, R., Lando, G., Furnari, A. (2026). EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision. Advances in Neural Information Processing Systems (NeurIPS), Track on Evaluations and Datasets. arXiv:2605.31557.
