@@ -1,8 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/egostream-logo-dark.svg">
-    <img src="docs/assets/egostream-logo.svg" alt="EgoStream" width="300">
-  </picture>
+  <img src="docs/assets/egostream-logo-transparent.png" alt="EgoStream" width="320">
 </p>
 
 # EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision
