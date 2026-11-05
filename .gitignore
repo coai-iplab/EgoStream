@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.env.local
+
+# Editors
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Experiment outputs (never commit predictions or offloaded caches)
+outputs/
+tests/*_result.json
+logs/
+*.out
+*.err
+kv_offload*/
+**/kv_offload*/
+*.xlsx
+
+# Data (videos are never redistributed; see data/README.md)
+data/videos/
+data/source_data/
+data/trimmed_clips/
+data/dry_run_reports/
+data/sample/*.mp4
+hf_cache/
+wandb/

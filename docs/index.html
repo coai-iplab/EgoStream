@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="EGOSTREAM is a diagnostic benchmark for streaming episodic memory in egocentric vision." />
+  <title>EGOSTREAM | Streaming Episodic Memory</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header" id="top">
+    <nav class="nav wrap" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="EGOSTREAM home">
+        <img class="brand-logo" src="assets/egostream-icon-transparent.png" alt="" />
+        <span>EGOSTREAM</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation">
+        <span></span><span></span>
+      </button>
+      <div class="nav-links" id="nav-links">
+        <a href="#benchmark">Benchmark</a>
+        <a href="#memory">Memory</a>
+        <a href="#overview">Overview</a>
+        <a href="#regimes">Regimes</a>
+        <a href="#protocol">Protocol</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">Research paper</p>
+          <h1>EGOSTREAM</h1>
+          <h2 class="paper-title">A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision</h2>
+          <div class="paper-meta" aria-label="Paper authors and affiliation">
+            <p class="authors">
+              Rosario Forte, Giuseppe Lando, Antonino Furnari
+            </p>
+            <p class="affiliation">
+              University of Catania
+            </p>
+          </div>
+          <p class="summary">
+            EGOSTREAM asks what models remember, for how long, and when an answer stops being valid
+            as the observed world changes.
+          </p>
+          <div class="release-banner" role="status">
+            <strong>DATA COMING SOON</strong>
+            <span>The benchmark data is not publicly released yet.</span>
+          </div>
+          <div class="hero-badges" aria-label="Core benchmark properties">
+            <span>Egocentric video</span>
+            <span>Evidence grounded</span>
+            <span>Streaming only</span>
+          </div>
+          <div class="hero-actions">
+            <a class="btn primary paper-link arxiv-button" href="https://arxiv.org/abs/2605.31557" target="_blank" rel="noopener noreferrer">
+              <img class="arxiv-logo" src="arxiv-logo-one-color-white.svg" alt="arXiv" />
+            </a>
+            <span class="btn ghost disabled paper-link" aria-disabled="true">
+              <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a10.99 10.99 0 0 1 5.75 0c2.19-1.49 3.15-1.18 3.15-1.18.63 1.58.23 2.75.11 3.04.74.8 1.18 1.83 1.18 3.08 0 4.42-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+              </svg>
+              <span>GitHub (coming soon)</span>
+            </span>
+          </div>
+        </div>
+        <figure class="teaser reveal">
+          <img src="assets/egostream-teaser.png" alt="Overview of the EGOSTREAM benchmark with evidence moments, answer validity windows, memory categories, and recall regimes." />
+          <figcaption>Evidence-grounded questions, Answer Validity Windows, memory categories, and recall regimes.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section wrap" id="benchmark">
+      <div class="section-head reveal">
+        <p class="eyebrow">Benchmark</p>
+        <h2>Streaming recall, measured carefully.</h2>
+      </div>
+      <div class="facts" aria-label="EGOSTREAM benchmark facts">
+        <article class="fact reveal">
+          <strong>2,250</strong>
+          <span>validated memory questions</span>
+        </article>
+        <article class="fact reveal">
+          <strong>8,528</strong>
+          <span>recall-conditioned evaluations</span>
+        </article>
+        <article class="fact reveal">
+          <strong>7</strong>
+          <span>episodic memory dimensions</span>
+        </article>
+        <article class="fact reveal">
+          <strong>45.3h</strong>
+          <span>maximum Answer Validity Window</span>
+        </article>
+      </div>
+      <div class="source-strip reveal" aria-label="Source datasets">
+        <span>Ego4D</span>
+        <span>EgoLife</span>
+        <span>EgoTempo</span>
+        <span>Multi-Hop EgoQA</span>
+        <span>HD-EPIC</span>
+      </div>
+    </section>
+
+    <section class="section split-section" id="memory">
+      <div class="wrap split">
+        <div class="reveal">
+          <p class="eyebrow">Memory dimensions</p>
+          <h2>What, where, when, how, who, why, and what next.</h2>
+          <p>
+            The benchmark organizes questions into detail, spatial, temporal, event, social, causal,
+            and prospective memory.
+          </p>
+        </div>
+        <div class="category-list reveal" aria-label="Seven EGOSTREAM memory categories">
+          <span>Detail</span>
+          <span>Spatial</span>
+          <span>Temporal</span>
+          <span>Event</span>
+          <span>Social</span>
+          <span>Causal</span>
+          <span>Prospective</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="overview">
+      <div class="quiet-grid">
+        <article class="quiet reveal">
+          <p class="eyebrow">Answer Validity Window</p>
+          <h2>Validity matters.</h2>
+          <p>
+            AVW marks the span during which a past answer remains factually correct, separating
+            model forgetting from natural scene changes.
+          </p>
+        </article>
+        <article class="quiet reveal">
+          <p class="eyebrow">Recall regimes</p>
+          <h2>From instant to ultra-long.</h2>
+          <p>
+            Questions are evaluated across recall regimes from 0 seconds through short, mid, long,
+            and ultra-long horizons.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap" id="regimes">
+      <div class="section-head reveal">
+        <p class="eyebrow">Recall regimes</p>
+        <h2>A log-scaled view of memory.</h2>
+      </div>
+      <div class="regime-track reveal" aria-label="Recall regimes from instant to ultra-long">
+        <div><strong>Instant</strong><span>0s</span></div>
+        <div><strong>Short</strong><span>0-5s</span></div>
+        <div><strong>Short-mid</strong><span>5-30s</span></div>
+        <div><strong>Mid</strong><span>30s-3m</span></div>
+        <div><strong>Mid-long</strong><span>3m-30m</span></div>
+        <div><strong>Long</strong><span>30m-8h</span></div>
+        <div><strong>Ultra-long</strong><span>8h+</span></div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="protocol">
+      <div class="section-head reveal">
+        <p class="eyebrow">Protocol</p>
+        <h2>Designed for controlled streaming evaluation.</h2>
+      </div>
+      <div class="info-grid">
+        <article class="info reveal">
+          <span>01</span>
+          <h3>Curated egocentric sources</h3>
+          <p>
+            Questions are curated from Ego4D Episodic Memory VQA, EgoLife, EgoTempo,
+            Multi-Hop EgoQA, and HD-EPIC.
+          </p>
+        </article>
+        <article class="info reveal">
+          <span>02</span>
+          <h3>Query-agnostic streaming</h3>
+          <p>
+            Models process video sequentially and answer using only visual content observed up to
+            the recall time.
+          </p>
+        </article>
+        <article class="info reveal">
+          <span>03</span>
+          <h3>4-way evaluation</h3>
+          <p>
+            Performance is measured as multiple-choice accuracy, with breakdowns by memory
+            category and recall regime.
+          </p>
+        </article>
+        <article class="info reveal">
+          <span>04</span>
+          <h3>Memory-management testbed</h3>
+          <p>
+            The unified framework compares sliding windows, attention sinks, KV-cache pruning,
+            merging, and offloading.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section wrap">
+      <div class="insight reveal">
+        <div>
+          <p class="eyebrow">Current gap</p>
+          <h2>Reliable episodic memory is still open.</h2>
+        </div>
+        <div class="insight-list">
+          <p>
+            Aggregate scores can hide different memory profiles across semantic categories and recall horizons.
+          </p>
+          <p>
+            Token pruning better preserves detail and temporal structure, while quantized offloading helps ultra-long recall.
+          </p>
+          <p>
+            Top-performing mechanisms remain around a 45% ceiling and operate below real-time.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <p>EGOSTREAM, 2026.</p>
+    <a href="#top" data-scroll-top>Back to top</a>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

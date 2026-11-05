@@ -1,0 +1,102 @@
+{
+  "paths": {
+    "annotations_file": "data/annotations/egostream_annotations.json",
+    "clip_base_path": "data/videos",
+    "output_dir": "outputs",
+    "prompt_path": "prompts/ingestion_prompt.txt"
+  },
+  "model": {
+    "model_id": "Qwen/Qwen3-VL-8B-Instruct",
+    "min_pixels": 65536,
+    "max_pixels": 1638400
+  },
+  "video_processing": {
+    "fps_to_process": 1,
+    "target_resolution": [
+      896,
+      512
+    ],
+    "stride": 16,
+    "use_sliding_window": true,
+    "dimention_sw": 16,
+    "overlapping_sw": false
+  },
+  "generation": {
+    "max_new_tokens": 4,
+    "temperature": 0.01,
+    "top_p": 0.9,
+    "open_ended_max_new_tokens": 48,
+    "open_ended_temperature": 0.5,
+    "open_ended_top_p": 0.95,
+    "open_ended_top_k": 0,
+    "open_ended_repetition_penalty": 1.02,
+    "open_ended_ban_eos_steps": 2
+  },
+  "cache": {
+    "type": "FlexibleCache",
+    "MAX_FRAMES_TO_PROCESS": 1000000,
+    "mutable_token_size": 4096,
+    "use_sink_tokens": true,
+    "sink_sys_prompt": true,
+    "size_sink_tokens": 400,
+    "use_hat_tokens": true,
+    "hat_category": "frames",
+    "hat_num_frames": 2,
+    "size_hat_tokens": 400,
+    "use_similarity": true,
+    "similarity_merge": false,
+    "similarity_keep_old": false,
+    "intra_frame_pruning": true,
+    "inter_frame_pruning": true,
+    "intra_chunk_size": 16,
+    "inter_chunk_size": 16,
+    "cleanup_min_frame_len": 2,
+    "pruning_pipeline": [
+      {
+        "name": "cleanup_tiny_pre",
+        "domain": "cleanup",
+        "reducer": "remove_small_frames",
+        "params": {
+          "min_len": 2
+        }
+      },
+      {
+        "name": "intra_pseudo_attn",
+        "domain": "intra",
+        "scorer": "pseudo_attn",
+        "reducer": "drop",
+        "params": {
+          "chunk_size": 64,
+          "remove_pct": 0.1
+        }
+      },
+      {
+        "name": "cleanup_tiny_after_intra",
+        "domain": "cleanup",
+        "reducer": "remove_small_frames",
+        "params": {
+          "min_len": 2
+        }
+      },
+      {
+        "name": "inter_cosine",
+        "domain": "inter",
+        "scorer": "adiacent_cosine",
+        "reducer": "drop",
+        "params": {
+          "chunk_size": 64,
+          "remove_pct": 0.15
+        }
+      },
+      {
+        "name": "cleanup_tiny_after_inter",
+        "domain": "cleanup",
+        "reducer": "remove_small_frames",
+        "params": {
+          "min_len": 2
+        }
+      }
+    ]
+  },
+  "verbose": false
+}

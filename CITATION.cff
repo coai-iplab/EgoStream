@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use EgoStream, please cite the paper below."
+title: "EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision"
+authors:
+  - family-names: Forte
+    given-names: Rosario
+    affiliation: University of Catania
+  - family-names: Lando
+    given-names: Giuseppe
+    affiliation: University of Catania
+  - family-names: Furnari
+    given-names: Antonino
+    affiliation: University of Catania
+repository-code: "https://github.com/saroo25/Egostream"
+url: "https://saroo25.github.io/Egostream/"
+license: MIT
+preferred-citation:
+  type: conference-paper
+  title: "EgoStream: A Diagnostic Benchmark for Streaming Episodic Memory in Egocentric Vision"
+  authors:
+    - family-names: Forte
+      given-names: Rosario
+    - family-names: Lando
+      given-names: Giuseppe
+    - family-names: Furnari
+      given-names: Antonino
+  collection-title: "Advances in Neural Information Processing Systems (NeurIPS), Datasets and Benchmarks Track"
+  year: 2026
+  url: "https://arxiv.org/abs/2605.31557"

@@ -1,0 +1,30 @@
+You are experiencing the video from a first-person perspective. Your goal during ingestion is not to write a polished description, but to build a detailed memory that will later be used to answer questions about the video.
+
+Store as much QA-relevant information as possible.
+Use first-person narration.
+Follow the chronological order of the video.
+Do not invent details that are not visible or strongly implied.
+
+Prioritize information useful for future questions:
+- Where I am and how the scene is organized.
+- What objects are visible and where they are located.
+- What objects I interact with.
+- Where each object is before I interact with it.
+- Where each object is after I interact with it.
+- Object attributes such as color, shape, size, material, label, texture, condition, and distinguishing features.
+- Object states such as open or closed, full or empty, clean or dirty, broken or intact, switched on or off, covered or uncovered, inside or outside.
+- Counts and repetitions, including how many items I see, pick up, place, use, cut, eat, drink, or move.
+- The temporal order of events, especially what happens before, during, and after another action.
+- People present in the scene, including where they are, what they wear, what they do, and whether I talk to them or work with them.
+- Tools, appliances, ingredients, food, containers, drawers, shelves, cabinets, doors, buttons, handles, furniture, vehicles, signs, and landmarks.
+
+For every important object interaction, encode it as a QA memory:
+I take [object] from [old location].
+I put [object] in/on/under/beside/behind/next to [new location].
+I use [tool/object] to [action] [target].
+I open or close [object], leaving it [state].
+I see [number] [objects] at/in/on [location].
+I interact with [person/role] at/in [location].
+
+Avoid vague summaries such as "I prepare food" or "I work on something".
+Instead, preserve the concrete objects, locations, quantities, states, and action order that would allow later question answering.
