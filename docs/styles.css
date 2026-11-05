@@ -687,20 +687,20 @@ h2 {
 .venue-badge {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin: 0 0 18px;
-  padding: 8px 14px 8px 10px;
+  gap: 18px;
+  margin: 0 0 26px;
+  padding: 12px 24px 12px 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
-  font-size: 0.86rem;
+  font-size: 1.02rem;
   font-weight: 800;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
 }
 
 .venue-badge img {
-  height: 30px;
+  height: 64px;
   width: auto;
   display: block;
 }
@@ -916,8 +916,18 @@ h2 {
 }
 
 @media (max-width: 680px) {
+  .venue-badge {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 18px;
+  }
+
+  .venue-badge img {
+    height: 52px;
+  }
+
   .venue-badge span {
-    font-size: 0.78rem;
+    font-size: 0.9rem;
   }
 
   .nav-links {

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="EgoStream icon">
+  <defs>
+    <linearGradient id="ring-dark" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#2d63b5"/>
+      <stop offset="0.55" stop-color="#4b8fe3"/>
+      <stop offset="1" stop-color="#8cc2ff"/>
+    </linearGradient>
+    <linearGradient id="hook-dark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2d63b5"/>
+      <stop offset="1" stop-color="#4b8fe3"/>
+    </linearGradient>
+    <linearGradient id="head-dark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8cc2ff"/>
+      <stop offset="1" stop-color="#4b8fe3"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M 143.50 40.13 A 74 74 0 1 0 159.87 143.50" fill="none" stroke="url(#ring-dark)" stroke-width="30"/>
+  <path d="M 120.34 54.32 A 50 50 0 1 0 132.14 138.30" fill="none" stroke="#cfe3ff" stroke-width="4.5"/>
+  <line x1="100.00" y1="56.00" x2="100.00" y2="44.00" stroke="#cfe3ff" stroke-width="6"/><line x1="100.00" y1="144.00" x2="100.00" y2="156.00" stroke="#cfe3ff" stroke-width="6"/><line x1="68.89" y1="68.89" x2="60.40" y2="60.40" stroke="#cfe3ff" stroke-width="6"/><line x1="131.11" y1="68.89" x2="139.60" y2="60.40" stroke="#cfe3ff" stroke-width="6"/><line x1="68.89" y1="131.11" x2="60.40" y2="139.60" stroke="#cfe3ff" stroke-width="6"/><line x1="131.11" y1="131.11" x2="139.60" y2="139.60" stroke="#cfe3ff" stroke-width="6"/>
+  <path d="M 58.00 100.00 A 42 42 0 0 0 117.08 138.37" fill="none" stroke="url(#hook-dark)" stroke-width="22"/>
+  <line x1="58.00" y1="100.00" x2="122.00" y2="100.00" stroke="url(#hook-dark)" stroke-width="22"/>
+  <path d="M 114.00 73.00 L 166.00 100.00 L 114.00 127.00 Z" fill="url(#head-dark)"/>
+</svg>
