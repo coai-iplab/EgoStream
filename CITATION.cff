@@ -11,8 +11,8 @@ authors:
   - family-names: Furnari
     given-names: Antonino
     affiliation: University of Catania
-repository-code: "https://github.com/saroo25/Egostream"
-url: "https://saroo25.github.io/Egostream/"
+repository-code: "https://github.com/coai-iplab/EgoStream"
+url: "https://coai-iplab.github.io/EgoStream/"
 license: MIT
 preferred-citation:
   type: conference-paper

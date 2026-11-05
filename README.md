@@ -6,7 +6,7 @@
 
 [Rosario Forte](https://coai-iplab.github.io/team/rosario_forte), [Giuseppe Lando](https://coai-iplab.github.io/team/giuseppe_lando), [Antonino Furnari](https://antoninofurnari.github.io) · University of Catania
 
-**NeurIPS 2026, Datasets and Benchmarks Track** · [Paper (arXiv)](https://arxiv.org/abs/2605.31557) · [Project page](https://saroo25.github.io/Egostream/)
+**NeurIPS 2026, Datasets and Benchmarks Track** · [Paper (arXiv)](https://arxiv.org/abs/2605.31557) · [Project page](https://coai-iplab.github.io/EgoStream/)
 
 EgoStream measures *what* a streaming multimodal LLM remembers from a first-person video
 stream and *for how long*. 2,250 curated questions over seven memory dimensions (detail,
@@ -63,7 +63,7 @@ EgoStream/
 Tested with Python 3.11, CUDA 12.4 and a single NVIDIA A100 (64 GB).
 
 ```bash
-git clone <this repository> EgoStream
+git clone https://github.com/coai-iplab/EgoStream.git
 cd EgoStream
 python -m venv .venv && source .venv/bin/activate
 pip install --upgrade pip
