@@ -34,9 +34,6 @@ requests==2.32.5
 pandas>=2.2
 openpyxl>=3.1
 
-# --- unit tests (CPU only) ---
-pytest>=8.0
-
 # --- optional ---
 # flash-attn: see README.md; the code falls back to SDPA when it is missing.
 # bitsandbytes: only needed for --load_in_4bit style loading.

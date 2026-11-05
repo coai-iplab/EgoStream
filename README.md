@@ -42,21 +42,19 @@ them from the five source datasets.
 
 ```text
 EgoStream/
-├── run_benchmark_qwen3vl.py       # full benchmark, Qwen3-VL backbone
-├── run_benchmark_internvl35.py    # full benchmark, InternVL 3.5 backbone
-├── run_benchmark_molmo2.py        # full benchmark, Molmo 2 backbone
-├── run_single_video.py            # stream one video and ask one question (Qwen3-VL / InternVL)
-├── run_single_video_molmo2.py     # same, Molmo 2
+├── run_benchmark.py               # full benchmark; picks the backbone from the config
+├── run_benchmark_qwen3vl.py       #   Qwen3-VL implementation
+├── run_benchmark_internvl35.py    #   InternVL 3.5 implementation
+├── run_benchmark_molmo2.py        #   Molmo 2 implementation
+├── run_single_video.py            # stream one video and ask one question (any backbone)
 ├── evaluate.py                    # aggregates predictions into accuracy tables
 ├── src/                           # model loading, streaming ingestion, generation, STC pruner
 ├── Caches/                        # FlexibleCache: sink / mutable / hat regions, reducers,
 │                                  # Ada-KV, disk offloading, ReKV-style retrieval
-├── configs/                       # one JSON per paper row (+ field reference in configs/README.md)
+├── configs/                       # one JSON per paper row + configuration guide
 ├── prompts/ingestion_prompt.txt   # ingestion prompt (Appendix A.7)
-├── scripts/                       # config generators, output re-bucketing, Slurm example
-├── tests/                         # CPU unit tests for Ada-KV and the STC pruner
+├── scripts/                       # config generators, output re-bucketing
 ├── data/                          # download scripts, annotation placeholder, sample video
-├── notes/                         # implementation notes on the cache internals
 └── docs/                          # project page (static HTML)
 ```
 
@@ -103,12 +101,12 @@ the config), then run:
 python run_single_video.py --config configs/single_video/qwen3vl_8b_prune_intra_cs.json
 ```
 
-The script primes the cache with the ingestion prompt, streams the video at 1 FPS through
-the configured memory policy and answers `single_video_test.question`. Other single-video
-configs: `internvl3_5_8b_*.json`, `qwen3vl_8b_adakv.json`, `qwen3vl_8b_stc.json`, the
-`qwen3vl_2b_*.json` variants for small GPUs, and `molmo2_8b_*.json` for
-`run_single_video_molmo2.py`. Paths inside single-video configs are resolved relative to the
-config file.
+The script reads the backbone from `model.model_id`, primes the cache with the ingestion
+prompt, streams the video at 1 FPS through the configured memory policy and answers
+`single_video_test.question`. Other presets in `configs/single_video/`:
+`internvl3_5_8b_*.json`, `molmo2_8b_*.json`, `qwen3vl_8b_adakv.json`, `qwen3vl_8b_stc.json`
+and the `qwen3vl_2b_*.json` variants for small GPUs. Add `--fast` for a two-frame smoke
+test. Paths inside single-video configs are resolved relative to the config file.
 
 ## Running the benchmark
 
@@ -121,17 +119,19 @@ config file.
 3. **Run** from the repository root (paths in benchmark configs are relative to it):
 
 ```bash
-python run_benchmark_qwen3vl.py --config configs/qwen3vl_8b/t4_r11_prune_intra_cos.json
+python run_benchmark.py --config configs/qwen3vl_8b/t4_r11_prune_intra_cos.json
 ```
 
-Use `run_benchmark_internvl35.py` and `run_benchmark_molmo2.py` with the configs in
-`configs/internvl3_5_8b/` and `configs/molmo2_8b/`.
+`run_benchmark.py` selects the implementation from `model.model_id` (Qwen3-VL, InternVL
+3.5 or Molmo 2) and forwards every other argument to it; the backbone-specific runners can
+also be called directly. Ada-KV and STC are available for Qwen3-VL only and the run stops
+with an explicit error otherwise.
 
 **Parallel runs.** Every runner shards the videos across processes with
-`--rank i --world_size N` (one GPU per process). Predictions are written to
-`outputs/<config name>/part_<rank>.json` and runs resume from existing parts.
-`scripts/slurm/run_benchmark_array.sbatch` is a ready-to-adapt Slurm job array;
-`scripts/rebucket_outputs.py` re-shards existing parts when the world size changes.
+`--rank i --world_size N` (one GPU per process, for example one Slurm job-array task per
+rank). Predictions are written to `outputs/<config name>/part_<rank>.json` and runs resume
+from existing parts; `scripts/rebucket_outputs.py` re-shards existing parts when the world
+size changes.
 
 **Protocol** (Appendix C.1): 1 FPS, frames resized to 896x512, sliding window of 16 frames
 with stride 16, temperature 0.01, top-p 0.9, options shuffled once with seed 42. The default
@@ -194,18 +194,13 @@ are additional policies run on these backbones with the same protocol.
 **Table 11, pre-prefill compression**: `t11_fifo_sink_hat_stc` (STC-Pruner on top of
 FIFO + SINK + HAT).
 
-New policies are composed in JSON: see [`configs/README.md`](configs/README.md) for every
-field (`cache.pruning_pipeline` steps, scorers, reducers, offloading, retrieval, Ada-KV,
-STC) and `scripts/create_adakv_config_from_baseline.py` /
-`scripts/create_stc_config_from_baseline.py` to derive variants from any baseline.
-
-## Tests
-
-CPU-only unit tests for the Ada-KV reducer and the STC pruner:
-
-```bash
-pytest tests -q
-```
+New policies are composed in JSON. [`configs/README.md`](configs/README.md) explains the
+config section by section with one recipe per policy (pruning, merging, pipelines,
+offloading and retrieval, Ada-KV, STC) and how the backbone is chosen;
+[`configs/REFERENCE.md`](configs/REFERENCE.md) lists every field.
+`scripts/create_adakv_config_from_baseline.py` and
+`scripts/create_stc_config_from_baseline.py` derive Ada-KV and STC variants from any
+baseline config.
 
 ## Citation
 

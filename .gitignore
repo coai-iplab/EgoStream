@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
-.pytest_cache/
 .mypy_cache/
 
 # Environments
@@ -21,7 +20,6 @@ Thumbs.db
 
 # Experiment outputs (never commit predictions or offloaded caches)
 outputs/
-tests/*_result.json
 logs/
 *.out
 *.err
